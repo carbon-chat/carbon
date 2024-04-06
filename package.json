@@ -1,7 +1,7 @@
 {
-	"name": "aphix",
-	"version": "1.0.0",
-	"description": "Aphix is a open-source, free messaging server build apon the Aphix Specification",
+	"name": "carbon",
+	"version": "1.1.0",
+	"description": "Carbon is a open-source, free messaging server build apon the Carbon Specification",
 	"main": "index.js",
 	"scripts": {
 		"test": "node .",
@@ -10,14 +10,14 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/aphix-project/aphix.git"
+		"url": "git+https://github.com/carbon-chat/carbon.git"
 	},
-	"author": "aphix-project.org, aphix-project (GitHub), fifly.org, fifly-llc (GitHub), proplayer919.dev, proplayer919 (GitHub), and contributors to Aphix on GitHub",
+	"author": "carbon-chat.org, carbon-chat (GitHub), fifly.org, fifly-llc (GitHub), proplayer919.dev, proplayer919 (GitHub), and contributors to Carbon on GitHub",
 	"license": "SEE LICENSE IN LICENSE.md",
 	"bugs": {
-		"url": "https://github.com/aphix-project/aphix/issues"
+		"url": "https://github.com/carbon-chat/carbon/issues"
 	},
-	"homepage": "https://github.com/aphix-project/aphix#readme",
+	"homepage": "https://github.com/carbon-chat/carbon#readme",
 	"dependencies": {
 		"bcrypt": "^5.1.1",
 		"express": "^4.18.2",

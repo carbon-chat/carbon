@@ -438,7 +438,7 @@ app.get('/healthcheck', (req, res) => {
 // Start the server listening on the specified port
 app.listen(port, () => {
 	// Log a message indicating that the server is listening
-	console.info(`Aphix Blaze listening on port ${port}`);
+	console.info(`Carbon listening on port ${port}`);
 
 	setup();
 
