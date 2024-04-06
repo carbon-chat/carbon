@@ -1,0 +1,31 @@
+{
+	"name": "aphix",
+	"version": "1.0.0",
+	"description": "Aphix is a open-source, free messaging server build apon the Aphix Specification",
+	"main": "index.js",
+	"scripts": {
+		"test": "node .",
+		"lint": "eslint .",
+		"start": "node ."
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/aphix-project/aphix.git"
+	},
+	"author": "aphix-project.org, aphix-project (GitHub), fifly.org, fifly-llc (GitHub), proplayer919.dev, proplayer919 (GitHub), and contributors to Aphix on GitHub",
+	"license": "SEE LICENSE IN LICENSE.md",
+	"bugs": {
+		"url": "https://github.com/aphix-project/aphix/issues"
+	},
+	"homepage": "https://github.com/aphix-project/aphix#readme",
+	"dependencies": {
+		"bcrypt": "^5.1.1",
+		"express": "^4.18.2",
+		"express-sslify": "^1.2.0",
+		"fs": "^0.0.1-security",
+		"js-yaml": "^4.1.0"
+	},
+	"devDependencies": {
+		"eslint": "^8.56.0"
+	}
+}
