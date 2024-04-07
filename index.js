@@ -422,6 +422,36 @@ app.post('/api/getChatMessages', (req, res) => {
 	res.send(messages);
 });
 
+/*
+ * GET /api/getInvlovedChats
+ * Retrieve all chats that the user is a member of
+ * 
+ * @param {Object} req - The HTTP request object
+ * @param {Object} res - The HTTP response object
+ * @returns {Array} - The array of chats
+ * @returns {number} 400 - If the request is invalid
+ * @returns {number} 200 - If the chats were retrieved successfully
+ */
+app.get('/api/getInvlovedChats', (req, res) => {
+	// Get the UUID of the user
+	const uuid = req.user.uuid;
+
+	// Declare a list of invloved chat's IDs
+	const invlovedChatIds = [];
+
+	// Iterate over all chats
+	chats.forEach(chat => {
+		// If the user is a member of the chat
+		if (chat.hasUser(uuid)) {
+			// Add the chat's ID to the list
+			invlovedChatIds.push(chat.id);
+		}
+	});
+
+	// Return the list of invloved chat's IDs
+	res.send(invlovedChatIds);
+});
+
 /**
  * POST /api/healthcheck
  * Check the health of the server
