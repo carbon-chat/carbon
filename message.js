@@ -39,8 +39,7 @@ class Message {
             authorId: this.authorId,
             chatId: this.chatId,
             content: this.content,
-            timestamp: this.timestamp,
-            badges: this.badges
+            timestamp: this.timestamp
         }
     }
 
@@ -51,7 +50,7 @@ class Message {
      * @return {Message} - The newly created Message object.
      */
     static fromJSON(json) {
-        return new Message(json.id, json.authorId, json.chatId, json.content, json.badges).setTimestamp(json.timestamp);
+        return new Message(json.id, json.authorId, json.chatId, json.content).setTimestamp(json.timestamp);
     }
 }
 
