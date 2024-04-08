@@ -135,7 +135,7 @@ function authenticate(username, password) {
  * @param {string} name - A name for the chat.
  * @return {Object} Returns an object containing the ID of the newly created chat.
  */
-function createChat(name, creatorId) {
+function createChat(name, creator) {
 	// Check if the name param is provided
 	if (!name) {
 		// If not, return undefined
@@ -146,7 +146,7 @@ function createChat(name, creatorId) {
 	const id = generateRandom(70);
 
 	// Create a new chat object and add it to the dms array
-	chats.push(new Chat(id, creatorId, name));
+	chats.push(new Chat(id, creator, name));
 
 	// Return an object with the ID of the newly created chat
 	return { id };
@@ -249,7 +249,7 @@ app.post('/api/register', (req, res) => {
 	// Extract the username and password from the request body
 	const { username, password } = req.body;
 
-	res.send(register(username, password));
+	res.status(200).send(register(username, password));
 });
 
 /**
@@ -264,7 +264,7 @@ app.post('/api/auth', (req, res) => {
 	// Extract the username and password from the request body
 	const { username, password } = req.body;
 
-	res.send(authenticate(username, password));
+	res.status(200).send(authenticate(username, password));
 });
 
 /**
@@ -320,7 +320,19 @@ app.post('/api/createChat', (req, res) => {
 	// Extract name from the request body
 	const { name } = req.body;
 
-	res.send(createChat(name, req.user.uuid));
+	// Check if name is missing
+	if (!name) {
+		// Return 400 Bad Request status if name is missing
+		return res.sendStatus(400);
+	}
+
+	// Check if the chat already exists
+	if (chats.find(c => c.name === name)) {
+		// Return 409 Conflict status if the chat already exists
+		return res.sendStatus(409);
+	}
+
+	res.status(200).send(createChat(name, req.user));
 });
 
 /**
@@ -419,11 +431,11 @@ app.post('/api/getChatMessages', (req, res) => {
 	const messages = chat.getMessages();
 
 	// Send the retrieved messages as response
-	res.send(messages);
+	res.status(200).send(messages);
 });
 
 /*
- * GET /api/getInvlovedChats
+ * POST /api/getInvlovedChats
  * Retrieve all chats that the user is a member of
  * 
  * @param {Object} req - The HTTP request object
@@ -432,7 +444,7 @@ app.post('/api/getChatMessages', (req, res) => {
  * @returns {number} 400 - If the request is invalid
  * @returns {number} 200 - If the chats were retrieved successfully
  */
-app.get('/api/getInvlovedChats', (req, res) => {
+app.post('/api/getInvlovedChats', (req, res) => {
 	// Get the UUID of the user
 	const uuid = req.user.uuid;
 
@@ -444,16 +456,60 @@ app.get('/api/getInvlovedChats', (req, res) => {
 		// If the user is a member of the chat
 		if (chat.hasUser(uuid)) {
 			// Add the chat's ID to the list
-			invlovedChatIds.push(chat.id);
+			invlovedChatIds.push(chat.toJSON());
 		}
 	});
 
 	// Return the list of invloved chat's IDs
-	res.send(invlovedChatIds);
+	res.status(200).send(invlovedChatIds);
 });
 
 /**
- * POST /api/healthcheck
+ * POST /api/getChatUsers
+ * Retrieve all users in a chat
+ * 
+ * @param {Object} req - The HTTP request object
+ * @param {Object} res - The HTTP response object
+ * @returns {Array} - The array of users
+ * @returns {number} 400 - If the request is invalid
+ * @returns {number} 404 - If the chat was not found
+ * @returns {number} 200 - If the users were retrieved successfully
+ * @returns {number} 401 - If the user is not a member of the chat
+ */
+app.post('/api/getChatUsers', (req, res) => {
+	// Extract ChatID from the request body
+	const { chatId } = req.body;
+
+	// Check if ChatID is missing
+	if (!chatId) {
+		// Return 400 Bad Request status if ChatID is missing
+		return res.sendStatus(400);
+	}
+
+	// Find the chat with the matching chat ID
+	const chat = chats.find(s => s.id === chatId);
+
+	// Check if chat does not exist
+	if (!chat) {
+		// Return 404 Not Found status if chat does not exist
+		return res.sendStatus(404);
+	}
+
+	// Check if the user is not a member of the chat
+	if (!chat.hasUser(req.user.uuid)) {
+		// Return 401 Unauthorized status if the user is not a member of the chat
+		return res.sendStatus(401);
+	}
+
+	// Retrieve users from the chat
+	const users = chat.getUsers();
+
+	// Send the retrieved users as response
+	res.status(200).send(users);
+});
+
+/**
+ * GET /healthcheck
  * Check the health of the server
  * 
  * @param {Object} req - The HTTP request object

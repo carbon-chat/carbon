@@ -6,10 +6,10 @@ class Chat {
      * @param {string} creatorId - The ID of the creator of the chat.
      * @param {string} name - The name of the chat.
      */
-    constructor(id, creatorId, name) {
-        this.creatorId = creatorId;
+    constructor(id, creator, name) {
+        this.creator = creator.toJSON();
         this.users = [];
-        this.users.push(creatorId);
+        this.users.push(creator.toJSON());
         this.id = id;
         this.messages = [];
         this.name = name;
