@@ -591,20 +591,30 @@ app.post('/api/addUserIcon', (req, res) => {
  * @param {Object} req - The HTTP request object
  * @param {Object} res - The HTTP response object
  * @returns {number} 404 - If the user was not found
+ * @returns {number} 400 - If the request is invalid
  * @returns {number} 200 - If the icon was retrieved successfully
  */
 app.post('/api/getUserIcon', (req, res) => {
-	// Get the icon
-	const icon = req.user.icon;
+	// Extract userId from the request body
+	const { userId } = req.body;
 
-	// Check if icon is missing
-	if (!icon) {
-		// Return 404 Not Found status if icon is missing
+	// Check if userId is missing
+	if (!userId) {
+		// Return 400 Bad Request status if userId is missing
+		return res.sendStatus(400);
+	}
+
+	// Find the user with the matching UUID
+	const user = users.find(u => u.uuid === userId);
+
+	// Check if user does not exist
+	if (!user) {
+		// Return 404 Not Found status if user does not exist
 		return res.sendStatus(404);
 	}
 
-	// Return the icon
-	res.status(200).send(icon);
+	// Return the user's icon
+	res.status(200).send(user.getIcon());
 });
 /**
  * GET /healthcheck
