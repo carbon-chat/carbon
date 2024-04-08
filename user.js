@@ -4,11 +4,23 @@ class User {
      *
      * @param {string} username - The username for the user.
      * @param {string} passwordHash - The hashed password for the user.
+     * @param {string} uuid - The UUID for the user.
      */
     constructor(username, passwordHash, uuid) {
         this.username = username;
         this.passwordHash = passwordHash;
         this.uuid = uuid;
+        this.icon = null;
+    }
+
+    /*
+     * Adds an icon to a user.
+     *
+     * @param {string} icon - The icon to be added.
+     * @returns {void}
+     */
+    addIcon(icon) {
+        this.icon = icon;
     }
 
     /**
@@ -20,7 +32,8 @@ class User {
         return {
             username: this.username,
             uuid: this.uuid,
-            passwordHash: this.passwordHash
+            passwordHash: this.passwordHash,
+            icon: this.icon
         };
     }
 
@@ -33,6 +46,7 @@ class User {
     static fromJSON(json) {
         let user = new User(json.username, json.passwordHash);
         user.uuid = json.uuid;
+        user.addIcon(json.icon);
         return user;
     }
 }

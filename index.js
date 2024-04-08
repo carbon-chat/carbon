@@ -84,6 +84,9 @@ function register(username, password) {
 	// Add the token's authCode to the `authCodes` array
 	authCodes.push(token.authCode);
 
+	// Save data to file
+	saveData();
+
 	// Return the token object
 	return token.toJSON();
 }
@@ -124,6 +127,9 @@ function authenticate(username, password) {
 	tokens.push(token);
 	authCodes.push(token.authCode);
 
+	// Save data to file
+	saveData();
+
 	// Return the token object
 	return token.toJSON();
 }
@@ -147,6 +153,9 @@ function createChat(name, creator) {
 
 	// Create a new chat object and add it to the dms array
 	chats.push(new Chat(id, creator, name));
+
+	// Save the data
+	saveData();
 
 	// Return an object with the ID of the newly created chat
 	return { id };
@@ -244,12 +253,30 @@ app.use((req, res, next) => {
  * @param {Object} req - The HTTP request object.
  * @param {Object} res - The HTTP response object.
  * @returns {Object} - The HTTP response with the user's token.
+ * @returns {number} 200 - If the user was registered successfully
+ * @returns {number} 409 - If the user already exists
+ * @returns {number} 400 - If the username or password is missing
  */
 app.post('/api/register', (req, res) => {
 	// Extract the username and password from the request body
 	const { username, password } = req.body;
 
-	res.status(200).send(register(username, password));
+	// Check if username or password is missing
+	if (!username || !password) {
+		// Return 400 Bad Request status if username or password is missing
+		return res.sendStatus(400);
+	}
+
+	// Check if the user already exists
+	if (users.find(u => u.username === username)) {
+		// Return 409 Conflict status if the user already exists
+		return res.sendStatus(409);
+	}
+
+	// Get the auth code for the registered user and return it
+	const auth = register(username, password);
+	
+	res.status(200).send(auth);
 });
 
 /**
@@ -312,7 +339,6 @@ app.post('/api/updatePassword', (req, res) => {
  * @param {Object} res - The HTTP response object
  * @returns {Object} - The ID of the created chat
  * @returns {number} 400 - If the request is invalid
- * @returns {number} 404 - If the user was not found
  * @returns {number} 200 - If the chat was created successfully
  * @returns {number} 409 - If the chat already exists
  */
@@ -332,7 +358,16 @@ app.post('/api/createChat', (req, res) => {
 		return res.sendStatus(409);
 	}
 
-	res.status(200).send(createChat(name, req.user));
+	// Create a new chat
+	const chat = createChat(name, req.user);
+
+	// Add the chat to the list of chats
+	chats.push(chat);
+
+	// Save the updated list of chats
+	saveData();
+
+	res.status(200).send(chat);
 });
 
 /**
@@ -385,6 +420,9 @@ app.post('/api/createChatMessage', (req, res) => {
 
 	// Send the message to the chat
 	chat.sendMessage(message);
+
+	// Save the updated chat
+	saveData();
 
 	// Return 200 OK status
 	res.sendStatus(200);
@@ -507,6 +545,67 @@ app.post('/api/getChatUsers', (req, res) => {
 	res.status(200).send(users);
 });
 
+/**
+ * POST /api/addUserIcon
+ * Add an icon to a user
+ * 
+ * @param {Object} req - The HTTP request object
+ * @param {Object} res - The HTTP response object
+ * @returns {number} 400 - If the request is invalid
+ * @returns {number} 404 - If the user was not found
+ * @returns {number} 200 - If the icon was added successfully
+ */
+app.post('/api/addUserIcon', (req, res) => {
+	// Extract icon from the request body
+	const { icon } = req.body;
+
+	// Check if icon is missing
+	if (!icon) {
+		// Return 400 Bad Request status if icon is missing
+		return res.sendStatus(400);
+	}
+
+	// Find the user with the matching UUID
+	const user = users.find(u => u.uuid === req.user.uuid);
+
+	// Check if user does not exist
+	if (!user) {
+		// Return 404 Not Found status if user does not exist
+		return res.sendStatus(404);
+	}
+
+	// Add the icon to the user
+	user.addIcon(icon);
+
+	// Save the updated user
+	saveData();
+
+	// Return 200 OK
+	res.sendStatus(200);
+});
+
+/**
+ * POST /api/getUserIcon
+ * Retrieve an icon from a user
+ * 
+ * @param {Object} req - The HTTP request object
+ * @param {Object} res - The HTTP response object
+ * @returns {number} 404 - If the user was not found
+ * @returns {number} 200 - If the icon was retrieved successfully
+ */
+app.post('/api/getUserIcon', (req, res) => {
+	// Get the icon
+	const icon = req.user.icon;
+
+	// Check if icon is missing
+	if (!icon) {
+		// Return 404 Not Found status if icon is missing
+		return res.sendStatus(404);
+	}
+
+	// Return the icon
+	res.status(200).send(icon);
+});
 /**
  * GET /healthcheck
  * Check the health of the server
