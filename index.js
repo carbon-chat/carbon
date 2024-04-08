@@ -441,7 +441,6 @@ app.post('/api/getChatMessages', (req, res) => {
  * @param {Object} req - The HTTP request object
  * @param {Object} res - The HTTP response object
  * @returns {Array} - The array of chats
- * @returns {number} 400 - If the request is invalid
  * @returns {number} 200 - If the chats were retrieved successfully
  */
 app.post('/api/getInvlovedChats', (req, res) => {
