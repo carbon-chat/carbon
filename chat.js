@@ -3,13 +3,13 @@ class Chat {
      * Initializes a new instance of the class.
      *
      * @param {string} id - The ID of the chat.
-     * @param {string} creatorId - The ID of the creator of the chat.
+     * @param {string} creator - The creator of the chat.
      * @param {string} name - The name of the chat.
      */
     constructor(id, creator, name) {
-        this.creator = creator;
+        this.creator = creator.toJSON();
         this.users = [];
-        this.users.push(creator);
+        this.users.push(creator.toJSON());
         this.id = id;
         this.messages = [];
         this.name = name;
@@ -41,17 +41,17 @@ class Chat {
      * @return {boolean} Returns true if the UUID exists in the users array, false otherwise.
      */
     hasUser(uuid) {
-        return this.users.some(user => user === uuid);
+        return this.users.some(user => user.uuid === uuid);
     }
 
     /**
      * Adds a user to the list of users.
      *
-     * @param {string} uuid - The UUID of the user to be added.
+     * @param {string} user - The user to be added.
      * @returns {void}
      */
-    addUser(uuid) {
-        this.users.push(uuid);
+    addUser(user) {
+        this.users.push(user.toJSON());
     }
 
     /**
@@ -61,7 +61,7 @@ class Chat {
      * @returns {void}
      */
     removeUser(uuid) {
-        this.users = this.users.filter(user => user !== uuid);
+        this.users = this.users.filter(user => user.uuid !== uuid);
     }
 
     /**
@@ -118,7 +118,7 @@ class Chat {
     toJSON() {
         return {
             id: this.id,
-            creatorId: this.creatorId,
+            creator: this.creator,
             name: this.name,
             users: this.users,
             messages: this.messages,

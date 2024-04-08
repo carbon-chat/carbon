@@ -359,7 +359,7 @@ app.post('/api/createChat', (req, res) => {
 	}
 
 	// Create a new chat
-	const chat = createChat(name, req.user);
+	const chat = createChat(name, users.find(u => u.uuid === req.user.uuid));
 
 	// Add the chat to the list of chats
 	chats.push(chat);

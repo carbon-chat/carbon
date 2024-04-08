@@ -10,7 +10,7 @@ class User {
         this.username = username;
         this.passwordHash = passwordHash;
         this.uuid = uuid;
-        this.icon = null;
+        this.icon = "https://static.thenounproject.com/png/5034901-200.png";
     }
 
     /*
