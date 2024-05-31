@@ -627,6 +627,85 @@ app.post('/api/getUserIcon', (req, res) => {
 	// Return the user's icon
 	res.status(200).send(user.getIcon());
 });
+
+/**
+ * POST /api/followUser
+ * Follow a user
+ * 
+ * @param {Object} req - The HTTP request object
+ * @param {Object} res - The HTTP response object
+ * @returns {number} 400 - If the request is invalid
+ * @returns {number} 404 - If the user was not found
+ * @returns {number} 200 - If the user was followed successfully
+ */
+app.post('/api/followUser', (req, res) => {
+	// Extract userId from the request body
+	const { userId } = req.body;
+
+	// Check if userId is missing
+	if (!userId) {
+		// Return 400 Bad Request status if userId is missing
+		return res.sendStatus(400);
+	}
+
+	// Find the user with the matching UUID
+	const user = users.find(u => u.uuid === userId);
+
+	// Check if user does not exist
+	if (!user) {
+		// Return 404 Not Found status if user does not exist
+		return res.sendStatus(404);
+	}
+
+	// Follow the user
+	user.addFollower(req.user);
+
+	// Save the updated user
+	saveData();
+
+	// Return 200 OK
+	res.sendStatus(200);
+});
+
+/**
+ * POST /api/unfollowUser
+ * Unfollow a user
+ * 
+ * @param {Object} req - The HTTP request object
+ * @param {Object} res - The HTTP response object
+ * @returns {number} 400 - If the request is invalid
+ * @returns {number} 404 - If the user was not found
+ * @returns {number} 200 - If the user was unfollowed successfully
+ */
+app.post('/api/unfollowUser', (req, res) => {
+	// Extract userId from the request body
+	const { userId } = req.body;
+
+	// Check if userId is missing
+	if (!userId) {
+		// Return 400 Bad Request status if userId is missing
+		return res.sendStatus(400);
+	}
+
+	// Find the user with the matching UUID
+	const user = users.find(u => u.uuid === userId);
+
+	// Check if user does not exist
+	if (!user) {
+		// Return 404 Not Found status if user does not exist
+		return res.sendStatus(404);
+	}
+
+	// Unfollow the user
+	user.removeFollower(req.user);
+
+	// Save the updated user
+	saveData();
+
+	// Return 200 OK
+	res.sendStatus(200);
+});
+
 /**
  * GET /healthcheck
  * Check the health of the server

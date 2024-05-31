@@ -54,5 +54,54 @@ module.exports = {
             millis,
             date
         };
+    },
+    /**
+     * Creates a banner quarter object.
+     *
+     * @return {Object} An object containing the banner quarter.
+     */
+    createBannerQuarter: () => {
+        let pattern = [
+            [true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true],
+            [true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true],
+            [true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true],
+            [true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true],
+            [true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true],
+            [true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true]
+        ];
+
+        for (let i = 0; i < 6; i++) {
+            for (let j = 0; j < 25; j++) {
+                pattern[i][j] = Math.random() < 0.5;
+            }
+        }
+
+        return pattern;
+    },
+    /**
+     * Creates a full banner object.
+     *
+     * @return {Object} An object containing the full banner.
+     */
+    createFullBanner: () => {
+        const bannerQuarter = this.createBannerQuarter();
+
+        const fullBanner = [];
+        for (let i = 0; i < 12; i++) {
+            fullBanner[i] = [];
+            for (let j = 0; j < 50; j++) {
+                if (i <= 6 && j <= 25) {
+                    fullBanner[i][j] = bannerQuarter[i][j];
+                } else if (i > 6 && j <= 25) {
+                    fullBanner[i][j] = !bannerQuarter[i - 6][j];
+                } else if (i <= 6 && j > 25) {
+                    fullBanner[i][j] = !bannerQuarter[i][j - 25];
+                } else {
+                    fullBanner[i][j] = bannerQuarter[i - 6][j - 25];
+                }
+            }
+        }
+
+        return fullBanner;
     }
 };
