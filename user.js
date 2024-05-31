@@ -7,6 +7,7 @@ class User {
      * @param {string} username - The username for the user.
      * @param {string} passwordHash - The hashed password for the user.
      * @param {string} uuid - The UUID for the user.
+     * @returns {User}
      */
     constructor(username, passwordHash, uuid) {
         this.username = username;

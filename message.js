@@ -6,26 +6,19 @@ class Message {
      *
      * @param {string} id - The id of the message.
      * @param {string} authorId - The author id.
-     * @param {string} chatId - The guild id.
+     * @param {string} chatId - The chat id.
      * @param {string} content - The content of the object.
-     * @param {Array} badges - The badges of the object.
+     * @param {string} reply - The reply of the object.
+     * @returns {Message}
      */
-    constructor(id, authorId, chatId, content) {
+    constructor(id, authorId, chatId, content, reply = null) {
         this.id = id;
         this.authorId = authorId;
         this.chatId = chatId;
         this.content = content;
+        this.reply = reply;
 
         this.millis, this.time = createTimestamp();
-    }
-
-    /**
-     * Sets the timestamp value.
-     *
-     * @param {Object} timestamp - The timestamp value to set.
-     */
-    setTimestamp(timestamp) {
-        this.timestamp = timestamp;
     }
 
     /**
@@ -39,8 +32,9 @@ class Message {
             authorId: this.authorId,
             chatId: this.chatId,
             content: this.content,
-            timestamp: this.timestamp
-        }
+            timestamp: this.timestamp,
+            reply: this.reply,
+        };
     }
 
     /**
@@ -50,7 +44,9 @@ class Message {
      * @return {Message} - The newly created Message object.
      */
     static fromJSON(json) {
-        return new Message(json.id, json.authorId, json.chatId, json.content).setTimestamp(json.timestamp);
+        let user = new Message(json.id, json.authorId, json.chatId, json.content);
+        user.timestamp = json.timestamp;
+        if(json.reply) user.reply = json.reply;
     }
 }
 

@@ -394,7 +394,7 @@ app.post('/api/createChat', (req, res) => {
  */
 app.post('/api/createChatMessage', (req, res) => {
 	// Extract chatId and content from the request body
-	const { chatId, content } = req.body;
+	const { chatId, content, replyId } = req.body;
 
 	// Check if chatId or content is missing
 	if (!chatId || !content) {
@@ -426,8 +426,18 @@ app.post('/api/createChatMessage', (req, res) => {
 	// Get the UUID of the author
 	const authorId = req.user.uuid;
 
-	// Create a new message object
-	const message = new Message(id, authorId, chatId, content);
+	let message;
+
+	if (replyId) {
+		// Get the message from the reply ID
+		const reply = chat.getMessage(replyId);
+
+		// Create a new message object
+		message = new Message(id, authorId, chatId, content, reply);
+	} else {
+		// Create a new message object
+		message = new Message(id, authorId, chatId, content);
+	}
 
 	// Send the message to the chat
 	chat.sendMessage(message);

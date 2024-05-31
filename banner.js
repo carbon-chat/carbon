@@ -6,8 +6,7 @@ class Banner {
      * 
      * @param {string} caption - The caption of the banner.
      * @param {string} rarity - The rarity of the banner.
-     * 
-     * @return {Object} The banner object.
+     * @returns {Banner}
      */
     constructor(caption, rarity) {
         this.caption = caption;

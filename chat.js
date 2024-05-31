@@ -5,6 +5,7 @@ class Chat {
      * @param {string} id - The ID of the chat.
      * @param {string} creator - The creator of the chat.
      * @param {string} name - The name of the chat.
+     * @returns {Chat}
      */
     constructor(id, creator, name) {
         this.creator = creator.toJSON();
@@ -32,6 +33,16 @@ class Chat {
      */
     getMessages() {
         return this.messages;
+    }
+
+    /**
+     * Gets a message from a message ID.
+     * 
+     * @param {string} id - The ID of the message to get.
+     * @returns {Object} The message with the given ID.
+     */
+    getMessage(id) {
+        return this.messages.find(message => message.id === id);
     }
 
     /**
