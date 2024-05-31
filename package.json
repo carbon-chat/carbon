@@ -20,7 +20,7 @@
 	"homepage": "https://github.com/carbon-chat/carbon#readme",
 	"dependencies": {
 		"bcrypt": "^5.1.1",
-		"express": "^4.18.2",
+		"express": "^4.19.2",
 		"express-sslify": "^1.2.0",
 		"fs": "^0.0.1-security",
 		"js-yaml": "^4.1.0"
