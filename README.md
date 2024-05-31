@@ -1,4 +1,4 @@
-# Carbon
+# <img src="/images/logo.png">
 
 ![Number of GitHub contributors](https://img.shields.io/github/contributors/carbon-chat/carbon)
 [![Number of GitHub issues that are open](https://img.shields.io/github/issues/carbon-chat/carbon)](https://github.com/carbon-chat/carbon/issues)
@@ -9,16 +9,16 @@
 ![GitHub commit activity](https://img.shields.io/github/commit-activity/m/carbon-chat/carbon)
 ![GitHub last commit](https://img.shields.io/github/last-commit/carbon-chat/carbon)
 
-Carbon is a 📖 open-source, 🪙 free messaging server built apon the Carbon Specification.
+Carbon is an 📖 open-source, 🪙 free messaging server built on the Carbon Specification.
 
 ## Our Mission
 
-Our mission is to provide 🔒 secure, and 🎯 robust messaging for everyone.
+Our mission is to provide 🔒 secure, 🎯 robust messaging for everyone.
 
 ## How it Works
 
-Carbon Clients connect to an instance of an Carbon Server. The client uses the [Carbon.js](https://github.com/carbon-chat/carbon.js) library to communicate with the server to send and receive messages, voice and video calls, and more.
+Carbon Clients connect to an instance of a Carbon Server. The client uses the [Carbon.js](https://github.com/carbon-chat/carbon.js) library to communicate with the server to send and receive messages, voice and video calls, and more.
 
 ## Getting Started
 
-Open an Carbon Client from [our clients list](https://github.com/carbon-chat/carbon/wiki/Carbon-Supported-Clients).
+Open a Carbon Client from [our clients list](https://github.com/carbon-chat/carbon/wiki/Carbon-Supported-Clients).
