@@ -17,8 +17,8 @@ Our mission is to provide 🔒 secure, and 🎯 robust messaging for everyone.
 
 ## How it Works
 
-Carbon Clients connect to an instance of an [Carbon Server](https://github.com/carbon-chat/carbon-meta). The client uses the [Carbon.js](https://github.com/carbon-chat/carbon.js) library to communicate with the server to send and receive messages, voice and video calls, and more.
+Carbon Clients connect to an instance of an Carbon Server. The client uses the [Carbon.js](https://github.com/carbon-chat/carbon.js) library to communicate with the server to send and receive messages, voice and video calls, and more.
 
 ## Getting Started
 
-Open an Carbon Client from [our clients list](https://github.com/carbon-chat/carbon-meta).
+Open an Carbon Client from [our clients list](https://github.com/carbon-chat/carbon/wiki/Carbon-Supported-Clients).

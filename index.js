@@ -2,6 +2,7 @@ const express = require('express');
 const bcrypt = require('bcrypt');
 const fs = require('fs');
 const yaml = require('js-yaml');
+const expressRateLimit = require('express-rate-limit');
 
 const User = require('./user');
 const Token = require('./token');
@@ -13,6 +14,16 @@ const config = require('./config.json');
 
 const app = express();
 const port = 3000;
+
+app.disable('x-powered-by');
+app.disable('etag');
+app.use(express.json());
+
+const limiter = expressRateLimit({
+	windowMs: 60 * 1000,
+	max: 100
+});
+app.use(limiter);
 
 let tokens = [], authCodes = [], users = [], chats = [], messageIds = [], userIds = [];
 
