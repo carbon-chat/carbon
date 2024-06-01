@@ -9,11 +9,11 @@
 ![GitHub commit activity](https://img.shields.io/github/commit-activity/m/carbon-chat/carbon)
 ![GitHub last commit](https://img.shields.io/github/last-commit/carbon-chat/carbon)
 
-Carbon is an 📖 open-source, 🪙 free messaging server built on the Carbon Specification.
+Carbon is an **📖 open-source**, **🪙 free** messaging server.
 
 ## Our Mission
 
-Our mission is to provide 🔒 secure, 🎯 robust messaging for everyone.
+We aim to provide **🔒 secure**, **🎯 robust** messaging for everyone.
 
 ## How it Works
 
