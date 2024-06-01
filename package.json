@@ -1,6 +1,6 @@
 {
 	"name": "carbon",
-	"version": "1.4",
+	"version": "1.5",
 	"description": "Carbon is a open-source, free messaging server build apon the Carbon Specification",
 	"main": "index.js",
 	"scripts": {
@@ -12,8 +12,8 @@
 		"type": "git",
 		"url": "git+https://github.com/carbon-chat/carbon.git"
 	},
-	"author": "carbon-chat.org, carbon-chat (GitHub), fifly.org, fifly-llc (GitHub), proplayer919.dev, proplayer919 (GitHub), and contributors to Carbon on GitHub",
-	"license": "SEE LICENSE IN LICENSE.md",
+	"author": "Contributors to Carbon on GitHub",
+	"license": "MIT",
 	"bugs": {
 		"url": "https://github.com/carbon-chat/carbon/issues"
 	},
