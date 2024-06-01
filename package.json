@@ -1,6 +1,6 @@
 {
 	"name": "carbon",
-	"version": "1.5",
+	"version": "1.6",
 	"description": "Carbon is a open-source, free messaging server build apon the Carbon Specification",
 	"main": "index.js",
 	"scripts": {
@@ -21,6 +21,7 @@
 	"dependencies": {
 		"bcrypt": "^5.1.1",
 		"express": "^4.19.2",
+		"express-rate-limit": "^7.3.0",
 		"express-sslify": "^1.2.0",
 		"fs": "^0.0.1-security",
 		"js-yaml": "^4.1.0"

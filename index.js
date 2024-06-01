@@ -131,6 +131,10 @@ function authenticate(username, password) {
 		return;
 	}
 
+	// Remove any existing tokens for the user
+	tokens = tokens.filter(t => t.uuid !== uuid);
+	authCodes = authCodes.filter(c => c !== user.authCode);
+
 	// Create a new token for the authenticated user
 	const token = new Token(uuid, authCodes);
 
@@ -213,10 +217,6 @@ function setup() {
 		userIds = data.userIds;
 	}
 }
-
-app.disable('x-powered-by');
-app.disable('etag');
-app.use(express.json());
 
 /**
  * Middleware to authenticate requests.
@@ -336,6 +336,75 @@ app.post('/api/updatePassword', (req, res) => {
 	user.password = bcrypt.hashSync(password, 10);
 
 	// Save the updated user
+	saveData();
+
+	// Return 200 OK
+	res.sendStatus(200);
+});
+
+/**
+ * POST /api/logout
+ * Log out a user.
+ * 
+ * @param {Object} req - The HTTP request object.
+ * @param {Object} res - The HTTP response object.
+ * @returns {number} 200 - If the user was logged out successfully
+ * @returns {number} 400 - If the request is invalid
+ */
+app.post('/api/logout', (req, res) => {
+	// Get the user
+	const user = users.find(u => u.username === req.user.username);
+
+	// Check if the user exists
+	if (!user) {
+		return res.sendStatus(400);
+	}
+
+	// Remove valid tokens for the user
+	tokens = tokens.filter(t => t.uuid !== req.user.uuid);
+	authCodes = authCodes.filter(c => c !== user.authCode);
+
+	// Return 200 OK
+	res.sendStatus(200);
+});
+
+/**
+ * POST /api/deleteUser
+ * Delete a user.
+ * 
+ * @param {Object} req - The HTTP request object.
+ * @param {Object} res - The HTTP response object.
+ * @returns {number} 200 - If the user was deleted successfully
+ * @returns {number} 400 - If the request is invalid
+ */
+app.post('/api/deleteUser', (req, res) => {
+	// Get the user
+	const user = users.find(u => u.username === req.user.username);
+
+	// Check if the user exists
+	if (!user) {
+		return res.sendStatus(400);
+	}
+
+	// Remove the user from the list of users
+	users = users.filter(u => u.username !== user.username);
+
+	// Remove valid tokens for the user
+	tokens = tokens.filter(t => t.uuid !== req.user.uuid);
+	authCodes = authCodes.filter(c => c !== user.authCode);
+
+	// Remove the user from any chats they are in and remove their messages
+	chats = chats.map(c => {
+		c.users = c.users.filter(u => u.username !== user.username);
+		c.messages = c.messages.filter(m => m.uuid !== req.user.uuid);
+		return c;
+	});
+
+	// Remove the user's messageIds and userIds
+	messageIds = messageIds.filter(m => m.uuid !== req.user.uuid);
+	userIds = userIds.filter(m => m.uuid !== req.user.uuid);
+
+	// Save the updated data
 	saveData();
 
 	// Return 200 OK
@@ -708,6 +777,45 @@ app.post('/api/unfollowUser', (req, res) => {
 
 	// Unfollow the user
 	user.removeFollower(req.user);
+
+	// Save the updated user
+	saveData();
+
+	// Return 200 OK
+	res.sendStatus(200);
+});
+
+/**
+ * POST /api/sendBanner
+ * Send a banner to a user
+ * 
+ * @param {Object} req - The HTTP request object
+ * @param {Object} res - The HTTP response object
+ * @returns {number} 400 - If the request is invalid
+ * @returns {number} 404 - If the user was not found
+ * @returns {number} 200 - If the user was sent a banner successfully
+ */
+app.post('/api/sendBanner', (req, res) => {
+	// Extract userId from the request body
+	const { userId, bannerId } = req.body;
+
+	// Check if userId is missing
+	if (!userId) {
+		// Return 400 Bad Request status if userId is missing
+		return res.sendStatus(400);
+	}
+
+	// Find the user with the matching UUID
+	const user = users.find(u => u.uuid === userId);
+
+	// Check if user does not exist
+	if (!user) {
+		// Return 404 Not Found status if user does not exist
+		return res.sendStatus(404);
+	}
+
+	// Send the user a banner
+	user.sendBanner(req.user, bannerId);
 
 	// Save the updated user
 	saveData();

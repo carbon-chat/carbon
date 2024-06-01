@@ -64,6 +64,17 @@ class User {
         this.followers = this.followers.filter(f => f.uuid !== follower.uuid);
     }
 
+    sendBanner(user, bannerId) {
+        // Find the banner in the user's list of banners
+        const banner = user.banners.find(b => b.bannerId === bannerId);
+
+        // Remove the banner from the user's list of banners
+        user.banners = user.banners.filter(b => b.bannerId !== bannerId);
+
+        // Send the banner to the user
+        this.banners.push(banner);
+    }
+
     /**
      * Converts the object to a JSON representation.
      *
