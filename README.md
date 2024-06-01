@@ -1,4 +1,4 @@
-<img src="/images/logo.png" width="827">
+<img src="/images/logo.png">
 
 ![Number of GitHub contributors](https://img.shields.io/github/contributors/carbon-chat/carbon)
 [![Number of GitHub issues that are open](https://img.shields.io/github/issues/carbon-chat/carbon)](https://github.com/carbon-chat/carbon/issues)
