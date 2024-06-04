@@ -1,6 +1,6 @@
 {
 	"name": "carbon",
-	"version": "1.6",
+	"version": "1.7",
 	"description": "Carbon is a open-source, free messaging server build apon the Carbon Specification",
 	"main": "index.js",
 	"scripts": {
@@ -27,6 +27,8 @@
 		"js-yaml": "^4.1.0"
 	},
 	"devDependencies": {
-		"eslint": "^9.3.0"
+		"@eslint/js": "^9.4.0",
+		"eslint": "^9.4.0",
+		"globals": "^15.3.0"
 	}
 }

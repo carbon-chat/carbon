@@ -3,14 +3,15 @@ class Chat {
      * Initializes a new instance of the class.
      *
      * @param {string} id - The ID of the chat.
-     * @param {string} creator - The creator of the chat.
+     * @param {User} creator - The creator of the chat.
      * @param {string} name - The name of the chat.
      * @returns {Chat}
      */
     constructor(id, creator, name) {
-        this.creator = creator.toJSON();
+        this.creator = creator;
+        this.creatorId = creator.uuid;
         this.users = [];
-        this.users.push(creator.toJSON());
+        this.users.push(creator);
         this.id = id;
         this.messages = [];
         this.name = name;
@@ -39,10 +40,20 @@ class Chat {
      * Gets a message from a message ID.
      * 
      * @param {string} id - The ID of the message to get.
-     * @returns {Object} The message with the given ID.
+     * @returns {Message} The message with the given ID.
      */
     getMessage(id) {
         return this.messages.find(message => message.id === id);
+    }
+
+    /**
+     * Deletes a message from the list of messages.
+     *
+     * @param {string} id - The ID of the message to be deleted.
+     * @returns {void}
+     */
+    deleteMessage(id) {
+        this.messages = this.messages.filter(message => message.id !== id);
     }
 
     /**
@@ -58,11 +69,11 @@ class Chat {
     /**
      * Adds a user to the list of users.
      *
-     * @param {string} user - The user to be added.
+     * @param {User} user - The user to be added.
      * @returns {void}
      */
     addUser(user) {
-        this.users.push(user.toJSON());
+        this.users.push(user);
     }
 
     /**
@@ -130,6 +141,7 @@ class Chat {
         return {
             id: this.id,
             creator: this.creator,
+            creatorId: this.creatorId,
             name: this.name,
             users: this.users,
             messages: this.messages,

@@ -18,6 +18,8 @@ class User {
         this.banners = [
             new Banner('Default Banner', 'common')
         ];
+        this.suspensionLevel = 0;
+        this.isAdmin = false;
     }
 
     /**
@@ -39,18 +41,18 @@ class User {
     addFollower(follower) {
         this.followers.push(follower);
 
-        if (self.followers.length == 1) {
-            self.banners.push(new Banner('First Follower', 'common'));
-        } else if (self.followers.length == 100) {
-            self.banners.push(new Banner('100 Followers', 'rare'));
-        } else if (self.followers.length == 1000) {
-            self.banners.push(new Banner('1000 Followers', 'epic'));
-        } else if (self.followers.length == 10000) {
-            self.banners.push(new Banner('10,000 Followers', 'legendary'));
-        } else if (self.followers.length == 100000) {
-            self.banners.push(new Banner('100,000 Followers', 'mythic'));
-        } else if (self.followers.length == 1000000) {
-            self.banners.push(new Banner('1,000,000 Followers', 'diamond'));
+        if (this.followers.length == 1) {
+            this.banners.push(new Banner('First Follower', 'common'));
+        } else if (this.followers.length == 100) {
+            this.banners.push(new Banner('100 Followers', 'rare'));
+        } else if (this.followers.length == 1000) {
+            this.banners.push(new Banner('1000 Followers', 'epic'));
+        } else if (this.followers.length == 10000) {
+            this.banners.push(new Banner('10,000 Followers', 'legendary'));
+        } else if (this.followers.length == 100000) {
+            this.banners.push(new Banner('100,000 Followers', 'mythic'));
+        } else if (this.followers.length == 1000000) {
+            this.banners.push(new Banner('1,000,000 Followers', 'diamond'));
         }
     }
 
@@ -73,6 +75,23 @@ class User {
 
         // Send the banner to the user
         this.banners.push(banner);
+    }
+
+    /**
+     * Sets the suspension level of the user.
+     * 
+     * 0 - no suspension
+     * 1 - warning 1
+     * 2 - warning 2
+     * 3 - partial suspension
+     * 4 - suspended
+     * 5 - permanently suspended
+     *
+     * @param {number} level - The new suspension level.
+     * @returns {void}
+     */
+    setSuspensionLevel(level) {
+        this.suspensionLevel = level;
     }
 
     /**

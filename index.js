@@ -126,8 +126,13 @@ function authenticate(username, password) {
 	// Find the user with the matching UUID
 	const user = users.find(u => u.uuid === uuid);
 
+	// Check if user does not exist
+	if (!user) {
+		return;
+	}
+
 	// Compare the provided password with the user's password
-	if (!bcrypt.compareSync(password, user.password)) {
+	if (!bcrypt.compareSync(password, user.passwordHash)) {
 		return;
 	}
 
@@ -163,10 +168,16 @@ function createChat(name, creator) {
 		return;
 	}
 
+	// Check if the creator param is provided
+	if (!creator) {
+		// If not, return undefined
+		return;
+	}
+
 	// Generate a random ID for the chat
 	const id = generateRandom(70);
 
-	// Create a new chat object and add it to the dms array
+	// Create a new chat object and add it to the chats array
 	chats.push(new Chat(id, creator, name));
 
 	// Save the data
@@ -335,6 +346,9 @@ app.post('/api/updatePassword', (req, res) => {
 	// Update the user's password
 	user.password = bcrypt.hashSync(password, 10);
 
+	// Remove valid tokens for the user
+	tokens = tokens.filter(t => t.uuid !== req.user.uuid);
+
 	// Save the updated user
 	saveData();
 
@@ -362,7 +376,6 @@ app.post('/api/logout', (req, res) => {
 
 	// Remove valid tokens for the user
 	tokens = tokens.filter(t => t.uuid !== req.user.uuid);
-	authCodes = authCodes.filter(c => c !== user.authCode);
 
 	// Return 200 OK
 	res.sendStatus(200);
@@ -379,7 +392,7 @@ app.post('/api/logout', (req, res) => {
  */
 app.post('/api/deleteUser', (req, res) => {
 	// Get the user
-	const user = users.find(u => u.username === req.user.username);
+	const user = users.find(u => u.uuid === req.user.uuid);
 
 	// Check if the user exists
 	if (!user) {
@@ -387,11 +400,10 @@ app.post('/api/deleteUser', (req, res) => {
 	}
 
 	// Remove the user from the list of users
-	users = users.filter(u => u.username !== user.username);
+	users = users.filter(u => u.uuid !== user.uuid);
 
 	// Remove valid tokens for the user
 	tokens = tokens.filter(t => t.uuid !== req.user.uuid);
-	authCodes = authCodes.filter(c => c !== user.authCode);
 
 	// Remove the user from any chats they are in and remove their messages
 	chats = chats.map(c => {
@@ -399,10 +411,6 @@ app.post('/api/deleteUser', (req, res) => {
 		c.messages = c.messages.filter(m => m.uuid !== req.user.uuid);
 		return c;
 	});
-
-	// Remove the user's messageIds and userIds
-	messageIds = messageIds.filter(m => m.uuid !== req.user.uuid);
-	userIds = userIds.filter(m => m.uuid !== req.user.uuid);
 
 	// Save the updated data
 	saveData();
@@ -438,16 +446,22 @@ app.post('/api/createChat', (req, res) => {
 		return res.sendStatus(409);
 	}
 
-	// Create a new chat
-	const chat = createChat(name, users.find(u => u.uuid === req.user.uuid));
+	// Find the creator
+	const creator = users.find(u => u.uuid === req.user.uuid);
 
-	// Add the chat to the list of chats
-	chats.push(chat);
+	// Check if the creator exists
+	if (!creator) {
+		// Return 404 Not Found status if the creator does not exist
+		return res.sendStatus(400);
+	}
+
+	// Create a new chat
+	const chatId = createChat(name, creator);
 
 	// Save the updated list of chats
 	saveData();
 
-	res.status(200).send(chat);
+	res.status(200).send(chatId);
 });
 
 /**
@@ -562,7 +576,53 @@ app.post('/api/getChatMessages', (req, res) => {
 	res.status(200).send(messages);
 });
 
-/*
+/**
+ * POST /api/deleteChat
+ * Delete a chat
+ * 
+ * @param {Object} req - The HTTP request object
+ * @param {Object} res - The HTTP response object
+ * @returns {number} 400 - If the request is invalid
+ * @returns {number} 401 - If the user is not the creator of the chat
+ * @returns {number} 404 - If the chat was not found
+ * @returns {number} 200 - If the chat was deleted successfully
+ */
+app.post('/api/deleteChat', (req, res) => {
+	// Extract ChatID from the request body
+	const { chatId } = req.body;
+
+	// Check if ChatID is missing
+	if (!chatId) {
+		// Return 400 Bad Request status if ChatID is missing
+		return res.sendStatus(400);
+	}
+
+	// Find the chat with the matching chat ID
+	const chat = chats.find(s => s.id === chatId);
+
+	// Check if chat does not exist
+	if (!chat) {
+		// Return 404 Not Found status if chat does not exist
+		return res.sendStatus(404);
+	}
+
+	// Check if the user is not the creator of the chat
+	if (req.user.uuid !== chat.creatorId) {
+		// Return 401 Unauthorized status if the user is not the creator of the chat
+		return res.sendStatus(401);
+	}
+
+	// Delete the chat
+	chats = chats.filter(c => c.id !== chatId);
+
+	// Save the updated list of chats
+	saveData();
+
+	// Return 200 OK status
+	res.sendStatus(200);
+});
+
+/**
  * POST /api/getInvlovedChats
  * Retrieve all chats that the user is a member of
  * 
@@ -572,20 +632,8 @@ app.post('/api/getChatMessages', (req, res) => {
  * @returns {number} 200 - If the chats were retrieved successfully
  */
 app.post('/api/getInvlovedChats', (req, res) => {
-	// Get the UUID of the user
-	const uuid = req.user.uuid;
-
-	// Declare a list of invloved chat's IDs
-	const invlovedChatIds = [];
-
-	// Iterate over all chats
-	chats.forEach(chat => {
-		// If the user is a member of the chat
-		if (chat.hasUser(uuid)) {
-			// Add the chat's ID to the list
-			invlovedChatIds.push(chat.toJSON());
-		}
-	});
+	// Filter chats that the user is a member of
+	const invlovedChatIds = chats.filter(chat => chat.hasUser(req.user.uuid)).map(chat => chat.toJSON());
 
 	// Return the list of invloved chat's IDs
 	res.status(200).send(invlovedChatIds);
@@ -736,8 +784,11 @@ app.post('/api/followUser', (req, res) => {
 		return res.sendStatus(404);
 	}
 
+	// Find the follower
+	const follower = users.find(u => u.uuid === req.user.uuid);
+
 	// Follow the user
-	user.addFollower(req.user);
+	user.addFollower(follower);
 
 	// Save the updated user
 	saveData();
@@ -775,8 +826,11 @@ app.post('/api/unfollowUser', (req, res) => {
 		return res.sendStatus(404);
 	}
 
+	// Find the unfollower
+	const unfollower = users.find(u => u.uuid === req.user.uuid);
+
 	// Unfollow the user
-	user.removeFollower(req.user);
+	user.removeFollower(unfollower);
 
 	// Save the updated user
 	saveData();
@@ -814,8 +868,56 @@ app.post('/api/sendBanner', (req, res) => {
 		return res.sendStatus(404);
 	}
 
+	// Find the sender
+	const sender = users.find(u => u.uuid === req.user.uuid);
+
 	// Send the user a banner
-	user.sendBanner(req.user, bannerId);
+	user.sendBanner(sender, bannerId);
+
+	// Save the updated user
+	saveData();
+
+	// Return 200 OK
+	res.sendStatus(200);
+});
+
+/**
+ * POST /api/suspension
+ * Suspend a user
+ * 
+ * @param {Object} req - The HTTP request object
+ * @param {Object} res - The HTTP response object
+ * @returns {number} 400 - If the request is invalid
+ * @returns {number} 403 - If the user does not have permissions to suspend
+ * @returns {number} 200 - If the user was suspended successfully
+ */
+app.post('/api/suspension', (req, res) => {
+	// Extract userId from the request body
+	const { userId, suspensionLevel } = req.body;
+
+	// Check if the user has permissions to suspend
+	if (!req.user.isAdmin) {
+		// Return 403 Forbidden status if the user does not have permissions to suspend
+		return res.sendStatus(403);
+	}
+
+	// Check if userId is missing
+	if (!userId) {
+		// Return 400 Bad Request status if userId is missing
+		return res.sendStatus(400);
+	}
+
+	// Find the user with the matching UUID
+	const user = users.find(u => u.uuid === userId);
+
+	// Check if user does not exist
+	if (!user) {
+		// Return 404 Not Found status if user does not exist
+		return res.sendStatus(400);
+	}
+
+	// Suspend the user
+	user.setSuspensionLevel(suspensionLevel);
 
 	// Save the updated user
 	saveData();
