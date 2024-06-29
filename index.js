@@ -7,13 +7,14 @@ const expressRateLimit = require('express-rate-limit');
 const User = require('./user');
 const Token = require('./token');
 const Chat = require('./chat');
-const Message = require('./message');
+const ChatMessage = require('./chatMessage');
+const CommunityMessage = require('./communityMessage');
 const { generateRandom, generateUnique } = require('./utils');
 
 const config = require('./config.json');
 
 const app = express();
-const port = 3000;
+const port = config.port;
 
 app.disable('x-powered-by');
 app.disable('etag');
@@ -25,13 +26,13 @@ const limiter = expressRateLimit({
 });
 app.use(limiter);
 
-let tokens = [], authCodes = [], users = [], chats = [], messageIds = [], userIds = [];
+let tokens = [], authCodes = [], users = [], chats = [], userIds = [], messages = [], messageIds = [];
 
 /**
  * Retrieves a user object from the list of users based on the provided UUID.
  *
  * @param {string} uuid - The UUID of the user to retrieve.
- * @return {Object} The user object associated with the provided UUID.
+ * @return {User} The user object associated with the provided UUID.
  */
 function getUserFromUUID(uuid) {
 	return users.find(u => u.uuid === uuid);
@@ -107,7 +108,7 @@ function register(username, password) {
  *
  * @param {string} username - The username of the user.
  * @param {string} password - The password of the user.
- * @return {object} The token object for the authenticated user.
+ * @return {Object} The token object for the authenticated user.
  */
 function authenticate(username, password) {
 	// Check if username or password is missing
@@ -187,6 +188,11 @@ function createChat(name, creator) {
 	return { id };
 }
 
+/**
+ * Function to set up the application by checking file existence and loading saved data.
+ * 
+ * @return {void}
+ */
 function setup() {
 	// Check if the data.json file exists
 	if (!fs.existsSync(config.dataSavePath) || !fs.statSync(config.dataSavePath).isFile() || fs.statSync(config.dataSavePath).size === 0) {
@@ -214,12 +220,6 @@ function setup() {
 	if (data.users && data.users.length > 0) {
 		// Load the saved users
 		users = data.users.map(u => User.fromJSON(u));
-	}
-
-	// Check if message ids are saved
-	if (data.messageIds && data.messageIds.length > 0) {
-		// Load the saved message ids
-		messageIds = data.messageIds;
 	}
 
 	// Check if user ids are saved
@@ -500,26 +500,17 @@ app.post('/api/createChatMessage', (req, res) => {
 		return res.sendStatus(401);
 	}
 
-	// Generate a unique ID for the message
-	const id = generateUnique(70, messageIds);
-
-	// Add the message ID to the messageIds array
-	messageIds.push(id);
-
 	// Get the UUID of the author
 	const authorId = req.user.uuid;
 
 	let message;
 
 	if (replyId) {
-		// Get the message from the reply ID
-		const reply = chat.getMessage(replyId);
-
 		// Create a new message object
-		message = new Message(id, authorId, chatId, content, reply);
+		message = new ChatMessage(authorId, chat, content, replyId);
 	} else {
 		// Create a new message object
-		message = new Message(id, authorId, chatId, content);
+		message = new ChatMessage(authorId, chat, content);
 	}
 
 	// Send the message to the chat
@@ -681,6 +672,42 @@ app.post('/api/getChatUsers', (req, res) => {
 
 	// Send the retrieved users as response
 	res.status(200).send(users);
+});
+
+/**
+ * POST /api/createCommunityMessage
+ * 
+ * @param {Object} req - The HTTP request object
+ * @param {Object} res - The HTTP response object
+ * @returns {number} 400 - If the request is invalid
+ * @returns {number} 404 - If the user was not found
+ * @returns {number} 200 - If the message was created successfully
+ */
+app.post('/api/createCommunityMessage', (req, res) => {
+	// Extract message from the request body
+	const { message } = req.body;
+
+	// Check if message is missing
+	if (!message) {
+		// Return 400 Bad Request status if message is missing
+		return res.sendStatus(400);
+	}
+
+	// Generate a unique ID for the message
+	const messageId = generateUnique(70, messageIds);
+	messageIds.push(messageId);
+
+	// Create the message
+	const messageObject = new CommunityMessage(messageId, req.user.uuid, chats.find(c => c.id === req.body.chatId), message);
+
+	// Add the message to the list of messages
+	messages.push(messageObject);
+
+	// Save the updated list of messages
+	saveData();
+
+	// Return 200 OK status
+	res.sendStatus(200);
 });
 
 /**

@@ -1,3 +1,4 @@
 {
-    "dataSavePath": "./data.yaml"
+    "dataSavePath": "./data.yaml",
+    "port": 8080
 }

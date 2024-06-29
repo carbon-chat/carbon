@@ -15,6 +15,7 @@ class Chat {
         this.id = id;
         this.messages = [];
         this.name = name;
+        this.messageIds = [];
     }
 
     /**

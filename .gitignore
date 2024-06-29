@@ -1,2 +1,4 @@
 node_modules
 data.yaml
+config.json
+.markdownlint.json

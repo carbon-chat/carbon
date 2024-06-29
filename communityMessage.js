@@ -1,20 +1,16 @@
-const { createTimestamp } = require('./utils');
+const Message = require('./message');
 
-class Message {
+class CommunityMessage extends Message {
     /**
      * Constructs a new instance of the class.
      *
      * @param {string} id - The id of the message.
      * @param {string} authorId - The author id.
      * @param {string} content - The content of the object.
-     * @returns {Message}
+     * @returns {CommunityMessage}
      */
     constructor(id, authorId, content) {
-        this.id = id;
-        this.authorId = authorId;
-        this.content = content;
-
-        this.millis, this.time = createTimestamp();
+        super(id, authorId, content);
     }
 
     /**
@@ -32,15 +28,15 @@ class Message {
     }
 
     /**
-     * Creates a new Message object from a JSON object.
+     * Creates a new CommunityMessage object from a JSON object.
      *
      * @param {Object} json - The JSON object representing a message.
-     * @return {Message} - The newly created Message object.
+     * @return {CommunityMessage} - The newly created Message object.
      */
     static fromJSON(json) {
-        let user = new Message(json.id, json.authorId, json.content);
+        let user = new CommunityMessage(json.id, json.authorId, json.content);
         user.timestamp = json.timestamp;
     }
 }
 
-module.exports = Message;
+module.exports = CommunityMessage;

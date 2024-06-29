@@ -1,4 +1,4 @@
-# ![Carbon Logo](/images/logo.png)
+<img src="./images/logo.png" alt="Carbon Logo">
 
 <div align="center">
     <a href="https://github.com/carbon-chat/carbon"><img src="https://img.shields.io/github/contributors/carbon-chat/carbon.svg" alt="Number of GitHub contributors"></a>
@@ -25,10 +25,23 @@ Carbon Clients connect to an instance of a Carbon Server. The client uses the [C
 
 Open a Carbon Client from [our clients list](https://github.com/carbon-chat/carbon/wiki/Carbon-Supported-Clients).
 
+## Running
+
+Make sure to add a ``config.json`` file to the project. Here is a template:
+
+```json
+{
+  "dataSavePath": "./data.yaml",
+  "port": 3000
+}
+```
+
+Make sure the ``dataSavePath`` is a valid YAML filename.
+
 ## Contributors
 
 <a href="https://github.com/carbon-chat/carbon/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=carbon-chat/carbon&max=400&columns=20" />
+  <img src="https://contrib.rocks/image?repo=carbon-chat/carbon&max=400&columns=20" alt="Contributors">
 </a>
 
 ## License
