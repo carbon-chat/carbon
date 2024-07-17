@@ -19,24 +19,7 @@ We aim to provide **🔒 secure**, **🎯 robust** messaging for everyone.
 
 ## How it Works
 
-Carbon Clients connect to an instance of a Carbon Server. The client uses the [Carbon.js](https://github.com/carbon-chat/carbon.js) library to communicate with the server to send and receive messages, voice and video calls, and more.
-
-## Getting Started
-
-Open a Carbon Client from [our clients list](https://github.com/carbon-chat/carbon/wiki/Carbon-Supported-Clients).
-
-## Running
-
-Make sure to add a ``config.json`` file to the project. Here is a template:
-
-```json
-{
-  "dataSavePath": "./data.yaml",
-  "port": 3000
-}
-```
-
-Make sure the ``dataSavePath`` is a valid YAML filename.
+Carbon Clients connect to an instance of a Carbon Server. The client (probably) uses the [Carbon.js](https://github.com/carbon-chat/carbon.js) library to communicate with the server to send and receive messages, voice and video calls, and more.
 
 ## Contributors
 
