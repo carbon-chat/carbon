@@ -3,7 +3,11 @@
     "info": {
         "title": "Carbon API",
         "version": "1.0.0",
-        "description": "The Carbon API provides endpoints for user authentication, chat management, and messaging."
+        "description": "The Carbon API provides endpoints for user authentication, chat management, and messaging.",
+        "contact": {
+            "name": "Contributors to Carbon on GitHub",
+            "url": "https://github.com/carbon-chat/carbon"
+        }
     },
     "servers": [
         {
@@ -16,6 +20,10 @@
             "post": {
                 "summary": "Register User",
                 "description": "Registers a new user.",
+                "operationId": "registerUser",
+                "tags": [
+                    "Authentication"
+                ],
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -67,6 +75,10 @@
             "post": {
                 "summary": "Authenticate User",
                 "description": "Authenticates an existing user.",
+                "operationId": "authenticateUser",
+                "tags": [
+                    "Authentication"
+                ],
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -118,6 +130,10 @@
             "post": {
                 "summary": "Update Password",
                 "description": "Updates the password for the authenticated user.",
+                "operationId": "updatePassword",
+                "tags": [
+                    "Authentication"
+                ],
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -150,6 +166,10 @@
             "post": {
                 "summary": "Create Chat",
                 "description": "Creates a new chat room.",
+                "operationId": "createChat",
+                "tags": [
+                    "Chat"
+                ],
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -197,6 +217,10 @@
             "post": {
                 "summary": "Create Chat Message",
                 "description": "Adds a new message to a chat.",
+                "operationId": "createChatMessage",
+                "tags": [
+                    "Chat"
+                ],
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -236,6 +260,10 @@
             "post": {
                 "summary": "Get Chat Messages",
                 "description": "Retrieves messages from a chat.",
+                "operationId": "getChatMessages",
+                "tags": [
+                    "Chat"
+                ],
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -281,6 +309,10 @@
             "post": {
                 "summary": "Get Involved Chats",
                 "description": "Retrieves IDs of chats involving the authenticated user.",
+                "operationId": "getInvolvedChats",
+                "tags": [
+                    "Chat"
+                ],
                 "responses": {
                     "200": {
                         "description": "Chat IDs retrieved successfully.",
@@ -302,6 +334,10 @@
             "post": {
                 "summary": "Get Chat Users",
                 "description": "Retrieves users of a chat.",
+                "operationId": "getChatUsers",
+                "tags": [
+                    "Chat"
+                ],
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -347,6 +383,10 @@
             "get": {
                 "summary": "Health Check",
                 "description": "Verifies server health.",
+                "operationId": "healthCheck",
+                "tags": [
+                    "Health Check"
+                ],
                 "responses": {
                     "200": {
                         "description": "Server is healthy."
