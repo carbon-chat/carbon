@@ -15,6 +15,20 @@
             "description": "API server"
         }
     ],
+    "tags": [
+        {
+            "name": "Authentication",
+            "description": "User authentication"
+        },
+        {
+            "name": "Chat",
+            "description": "Chat management"
+        },
+        {
+            "name": "Health Check",
+            "description": "Health check endpoint"
+        }
+    ],
     "paths": {
         "/api/v1/register": {
             "post": {
