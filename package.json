@@ -23,7 +23,8 @@
 		"express": "^4.19.2",
 		"express-rate-limit": "^7.3.1",
 		"express-sslify": "^1.2.0",
-		"fs": "^0.0.1-security"
+		"fs": "^0.0.1-security",
+		"pako": "^2.1.0"
 	},
 	"devDependencies": {
 		"@eslint/js": "^9.7.0",

@@ -133,7 +133,7 @@ dist
 .markdownlint.json
 
 # data save
-data.json
+save.gz
 
 # eslint
 eslint.config.mjs

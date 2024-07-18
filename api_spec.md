@@ -12,7 +12,7 @@ Base Port: 3000
 
 Registers a new user.
 
-- **URL:** `/api/register`
+- **URL:** `/api/v1/register`
 - **Method:** `POST`
 - **Request Body:**
 
@@ -41,7 +41,7 @@ Registers a new user.
 
 Authenticates an existing user.
 
-- **URL:** `/api/auth`
+- **URL:** `/api/v1/auth`
 - **Method:** `POST`
 - **Request Body:**
 
@@ -70,7 +70,7 @@ Authenticates an existing user.
 
 Updates the password for the authenticated user.
 
-- **URL:** `/api/updatePassword`
+- **URL:** `/api/v1/updatePassword`
 - **Method:** `POST`
 - **Request Body:**
 
@@ -91,7 +91,7 @@ Updates the password for the authenticated user.
 
 Creates a new chat room.
 
-- **URL:** `/api/createChat`
+- **URL:** `/api/v1/createChat`
 - **Method:** `POST`
 - **Request Body:**
 
@@ -112,7 +112,7 @@ Creates a new chat room.
 
 Adds a new message to a chat.
 
-- **URL:** `/api/createChatMessage`
+- **URL:** `/api/v1/createChatMessage`
 - **Method:** `POST`
 - **Request Body:**
 
@@ -133,7 +133,7 @@ Adds a new message to a chat.
 
 Retrieves messages from a chat.
 
-- **URL:** `/api/getChatMessages`
+- **URL:** `/api/v1/getChatMessages`
 - **Method:** `POST`
 - **Request Body:**
 
@@ -154,7 +154,7 @@ Retrieves messages from a chat.
 
 Retrieves IDs of chats involving the authenticated user.
 
-- **URL:** `/api/getInvlovedChats`
+- **URL:** `/api/v1/getInvlovedChats`
 - **Method:** `POST`
 - **Success Response:**
   - **Code:** `200 OK`
@@ -164,7 +164,7 @@ Retrieves IDs of chats involving the authenticated user.
 
 Retrieves users of a chat.
 
-- **URL:** `/api/getChatUsers`
+- **URL:** `/api/v1/getChatUsers`
 - **Method:** `POST`
 - **Request Body:**
 
