@@ -1,0 +1,358 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Carbon API",
+        "version": "1.0.0",
+        "description": "The Carbon API provides endpoints for user authentication, chat management, and messaging."
+    },
+    "servers": [
+        {
+            "url": "https://carbon.proplayer919.dev:3000",
+            "description": "API server"
+        }
+    ],
+    "paths": {
+        "/api/v1/register": {
+            "post": {
+                "summary": "Register User",
+                "description": "Registers a new user.",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "username": {
+                                        "type": "string"
+                                    },
+                                    "password": {
+                                        "type": "string"
+                                    }
+                                },
+                                "required": [
+                                    "username",
+                                    "password"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "User registered successfully.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "userId": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request if username or password is missing."
+                    },
+                    "409": {
+                        "description": "Conflict if username already exists."
+                    }
+                }
+            }
+        },
+        "/api/v1/auth": {
+            "post": {
+                "summary": "Authenticate User",
+                "description": "Authenticates an existing user.",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "username": {
+                                        "type": "string"
+                                    },
+                                    "password": {
+                                        "type": "string"
+                                    }
+                                },
+                                "required": [
+                                    "username",
+                                    "password"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "User authenticated successfully.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "userId": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request if username or password is missing or incorrect."
+                    },
+                    "401": {
+                        "description": "Unauthorized if authentication fails."
+                    }
+                }
+            }
+        },
+        "/api/v1/updatePassword": {
+            "post": {
+                "summary": "Update Password",
+                "description": "Updates the password for the authenticated user.",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "password": {
+                                        "type": "string"
+                                    }
+                                },
+                                "required": [
+                                    "password"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Password updated successfully."
+                    },
+                    "400": {
+                        "description": "Bad Request if password is missing."
+                    }
+                }
+            }
+        },
+        "/api/v1/createChat": {
+            "post": {
+                "summary": "Create Chat",
+                "description": "Creates a new chat room.",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "name": {
+                                        "type": "string"
+                                    }
+                                },
+                                "required": [
+                                    "name"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Chat room created successfully.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "chatId": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request if name is missing."
+                    },
+                    "409": {
+                        "description": "Conflict if a chat room with the same name already exists."
+                    }
+                }
+            }
+        },
+        "/api/v1/createChatMessage": {
+            "post": {
+                "summary": "Create Chat Message",
+                "description": "Adds a new message to a chat.",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "chatId": {
+                                        "type": "string"
+                                    },
+                                    "content": {
+                                        "type": "string"
+                                    }
+                                },
+                                "required": [
+                                    "chatId",
+                                    "content"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Message added to chat successfully."
+                    },
+                    "400": {
+                        "description": "Bad Request if chatId or content is missing."
+                    },
+                    "401": {
+                        "description": "Unauthorized if user is not a member of the chat."
+                    }
+                }
+            }
+        },
+        "/api/v1/getChatMessages": {
+            "post": {
+                "summary": "Get Chat Messages",
+                "description": "Retrieves messages from a chat.",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "chatId": {
+                                        "type": "string"
+                                    }
+                                },
+                                "required": [
+                                    "chatId"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Messages retrieved successfully.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request if chatId is missing."
+                    },
+                    "401": {
+                        "description": "Unauthorized if user is not a member of the chat."
+                    }
+                }
+            }
+        },
+        "/api/v1/getInvolvedChats": {
+            "post": {
+                "summary": "Get Involved Chats",
+                "description": "Retrieves IDs of chats involving the authenticated user.",
+                "responses": {
+                    "200": {
+                        "description": "Chat IDs retrieved successfully.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/getChatUsers": {
+            "post": {
+                "summary": "Get Chat Users",
+                "description": "Retrieves users of a chat.",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "chatId": {
+                                        "type": "string"
+                                    }
+                                },
+                                "required": [
+                                    "chatId"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Users retrieved successfully.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request if chatId is missing."
+                    },
+                    "401": {
+                        "description": "Unauthorized if user is not a member of the chat."
+                    }
+                }
+            }
+        },
+        "/healthcheck": {
+            "get": {
+                "summary": "Health Check",
+                "description": "Verifies server health.",
+                "responses": {
+                    "200": {
+                        "description": "Server is healthy."
+                    }
+                }
+            }
+        }
+    }
+}
