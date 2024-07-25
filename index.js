@@ -3,6 +3,8 @@ const bcrypt = require('bcrypt');
 const fs = require('fs');
 const expressRateLimit = require('express-rate-limit');
 const pako = require('pako');
+const crypto = require('crypto');
+const env = require('dotenv').config();
 
 const CarbonObject = require('./carbonObject');
 
@@ -25,6 +27,8 @@ let objects = new Map();
 
 let usernameToId = new Map();
 
+let userIdToKey = new Map();
+
 let authCodes = [];
 
 function generateRandom(length) {
@@ -36,6 +40,7 @@ function generateRandom(length) {
 	}
 	return 'COI-' + result;
 }
+
 function generateUnique(length, arr) {
 	var result = '';
 	do {
@@ -62,108 +67,29 @@ function createTimestamp() {
 	};
 }
 
-function mapToJson(map) {
-	return JSON.stringify([...map]);
+function encrypt(data, publicKey) {
+	const buffer = Buffer.from(data, 'utf8');
+	const encrypted = crypto.publicEncrypt(publicKey, buffer);
+	return encrypted.toString('base64');
 }
 
-function jsonToMap(jsonStr) {
-	return new Map(JSON.parse(jsonStr));
+function decrypt(encrypted, privateKey) {
+	const buffer = Buffer.from(encrypted, 'base64');
+	const decrypted = crypto.privateDecrypt(privateKey, buffer);
+	return decrypted.toString('utf8');
 }
 
 function saveData() {
 	const serializedData = JSON.stringify({
-		objects: mapToJson(objects),
-		usernameToId: mapToJson(usernameToId),
+		objects: JSON.stringify([...objects]),
+		usernameToId: JSON.stringify([...usernameToId]),
+		userIdToKey: JSON.stringify([...userIdToKey]),
 		authCodes: authCodes
 	});
 
 	const compressedData = pako.deflate(serializedData);
 
 	fs.writeFileSync(savePath, compressedData);
-}
-
-function register(username, password) {
-	if (!username || !password) {
-		return;
-	}
-
-	if (usernameToId.has(username)) {
-		return;
-	}
-
-	const hashedPassword = bcrypt.hashSync(password, 10);
-
-	const userId = generateUnique(100, [...objects.keys()]);
-
-	const user = new CarbonObject("carbon:user", {
-		username,
-		passwordHash: hashedPassword
-	});
-
-	objects.set(userId, user);
-
-	usernameToId.set(username, userId);
-
-	const tokenId = generateUnique(100, [...objects.keys()]);
-
-	const authCode = generateUnique(200, authCodes);
-
-	authCodes.push(authCode);
-
-	const token = new CarbonObject("carbon:token", {
-		userId,
-		code: authCode,
-		expiresAt: Date.now() + (60 * 60 * 1000),
-	});
-
-	objects.set(tokenId, token);
-
-	return tokenId;
-}
-
-function authenticate(username, password) {
-	if (!username || !password) {
-		return;
-	}
-
-	const userId = usernameToId.get(username);
-
-	const user = objects.get(userId);
-
-	if (!bcrypt.compareSync(password, user.passwordHash)) {
-		return;
-	}
-
-	const tokenId = generateUnique(100, [...objects.keys()]);
-
-	const authCode = generateUnique(200, authCodes);
-
-	authCodes.push(authCode);
-
-	const token = new CarbonObject("carbon:token", {
-		userId,
-		code: authCode,
-		expiresAt: Date.now() + (60 * 60 * 1000),
-	});
-
-	objects.set(tokenId, token);
-
-	return tokenId;
-}
-
-function createChat(name, creatorId) {
-	const chatId = generateUnique(100, [...objects.keys()]);
-
-	const chat = new CarbonObject("carbon:chat", {
-		name,
-		creatorId,
-		users: [creatorId],
-		messages: [],
-	});
-
-	objects.set(chatId, chat);
-
-	return chatId;
 }
 
 function setup() {
@@ -175,8 +101,9 @@ function setup() {
 	const decompressedData = pako.inflate(compressedDataFromFile, { to: 'string' });
 
 	const parsedData = JSON.parse(decompressedData);
-	objects = jsonToMap(parsedData.objects);
-	usernameToId = jsonToMap(parsedData.usernameToId);
+	objects = new Map(JSON.parse(parsedData.objects));
+	usernameToId = new Map(JSON.parse(parsedData.usernameToId));
+	userIdToKey = new Map(JSON.parse(parsedData.userIdToKey));
 	authCodes = parsedData.authCodes;
 }
 
@@ -216,10 +143,27 @@ app.use((req, res, next) => {
 	next();
 });
 
+app.post('/api/getKey', (req, res) => {
+	res.status(200).send({ publicKey: env.PUBLIC_KEY });
+});
+
 app.post('/api/v1/register', (req, res) => {
-	const { username, password } = req.body;
+	let { username, password, publicKey } = req.body;
 
 	if (!username || !password) {
+		return res.sendStatus(400);
+	}
+
+	username = decrypt(username, env.PRIVATE_KEY);
+	password = decrypt(password, env.PRIVATE_KEY);
+
+	publicKey = decrypt(publicKey, env.PRIVATE_KEY);
+
+	if (username.length < 3 || username.length > 32) {
+		return res.sendStatus(400);
+	}
+
+	if (password.length < 3) {
 		return res.sendStatus(400);
 	}
 
@@ -227,33 +171,85 @@ app.post('/api/v1/register', (req, res) => {
 		return res.sendStatus(409);
 	}
 
-	const tokenId = register(username, password);
+	const hashedPassword = bcrypt.hashSync(password, 10);
 
-	res.status(200).send(objects.get(tokenId));
+	const userId = generateUnique(100, [...objects.keys()]);
+
+	const user = new CarbonObject("carbon:user", {
+		username,
+		passwordHash: hashedPassword
+	});
+
+	objects.set(userId, user);
+
+	usernameToId.set(username, userId);
+
+	userIdToKey.set(userId, publicKey);
+
+	const tokenId = generateUnique(100, [...objects.keys()]);
+
+	const authCode = generateUnique(200, authCodes);
+
+	authCodes.push(authCode);
+
+	const token = new CarbonObject("carbon:token", {
+		userId,
+		code: authCode,
+		expiresAt: Date.now() + (60 * 60 * 1000),
+	});
+
+	objects.set(tokenId, token);
+
+	res.status(200).send(token);
 });
 
 app.post('/api/v1/auth', (req, res) => {
-	const { username, password } = req.body;
+	let { username, password } = req.body;
 
 	if (!username || !password) {
 		return res.sendStatus(400);
 	}
 
-	if (usernameToId.has(username)) {
-		return res.sendStatus(409);
+	username = decrypt(username, env.PRIVATE_KEY);
+	password = decrypt(password, env.PRIVATE_KEY);
+
+	if (!usernameToId.has(username)) {
+		return res.sendStatus(401);
 	}
 
-	const tokenId = authenticate(username, password);
+	const userId = usernameToId.get(username);
 
-	res.status(200).send(objects.get(tokenId));
+	const user = objects.get(userId);
+
+	if (!bcrypt.compareSync(password, user.passwordHash)) {
+		return res.sendStatus(401);
+	}
+
+	const tokenId = generateUnique(100, [...objects.keys()]);
+
+	const authCode = generateUnique(200, authCodes);
+
+	authCodes.push(authCode);
+
+	const token = new CarbonObject("carbon:token", {
+		userId,
+		code: authCode,
+		expiresAt: Date.now() + (60 * 60 * 1000),
+	});
+
+	objects.set(tokenId, token);
+
+	res.status(200).send(token);
 });
 
 app.post('/api/v1/updatePassword', (req, res) => {
-	const { password } = req.body;
+	let { password } = req.body;
 
 	if (!password) {
 		return res.sendStatus(400);
 	}
+
+	password = decrypt(password, env.PRIVATE_KEY);
 
 	const user = objects.get(req.user);
 
@@ -263,28 +259,41 @@ app.post('/api/v1/updatePassword', (req, res) => {
 });
 
 app.post('/api/v1/createChat', (req, res) => {
-	const { name } = req.body;
+	let { name } = req.body;
 
 	if (!name) {
-
 		return res.sendStatus(400);
 	}
+
+	name = decrypt(name, env.PRIVATE_KEY);
 
 	if (objects.entries().find(c => c.name === name)) {
 		return res.sendStatus(409);
 	}
 
-	const chatId = createChat(name, req.user);
+	const chatId = generateUnique(100, [...objects.keys()]);
+
+	const chat = new CarbonObject("carbon:chat", {
+		name,
+		creatorId: req.user,
+		users: [req.user],
+		messages: [],
+	});
+
+	objects.set(chatId, chat);
 
 	res.status(200).send({ chatId });
 });
 
 app.post('/api/v1/createChatMessage', (req, res) => {
-	const { chatId, content } = req.body;
+	let { chatId, content } = req.body;
 
 	if (!chatId || !content) {
 		return res.sendStatus(400);
 	}
+
+	chatId = decrypt(chatId, env.PRIVATE_KEY);
+	content = decrypt(content, env.PRIVATE_KEY);
 
 	const chat = objects.get(chatId);
 
@@ -306,6 +315,30 @@ app.post('/api/v1/createChatMessage', (req, res) => {
 });
 
 app.post('/api/v1/getChatMessages', (req, res) => {
+	let { chatId } = req.body;
+
+	if (!chatId) {
+		return res.sendStatus(400);
+	}
+
+	chatId = decrypt(chatId, env.PRIVATE_KEY);
+
+	const chat = objects.get(chatId);
+
+	if (!chat.users.includes(req.user)) {
+		return res.sendStatus(401);
+	}
+
+	res.status(200).send(encrypt(chat.messages, userIdToKey.get(req.user)));
+});
+
+app.post('/api/v1/getInvlovedChats', (req, res) => {
+	const invlovedChatIds = [...objects.keys()].filter(id => objects.get(id).users.includes(req.user));
+
+	res.status(200).send(encrypt(invlovedChatIds, userIdToKey.get(req.user)));
+});
+
+app.post('/api/v1/getChatUsers', (req, res) => {
 	const { chatId } = req.body;
 
 	if (!chatId) {
@@ -318,29 +351,7 @@ app.post('/api/v1/getChatMessages', (req, res) => {
 		return res.sendStatus(401);
 	}
 
-	res.status(200).send(chat.messages);
-});
-
-app.post('/api/v1/getInvlovedChats', (req, res) => {
-	const invlovedChatIds = [...objects.keys()].filter(id => objects.get(id).users.includes(req.user));
-
-	res.status(200).send(invlovedChatIds);
-});
-
-app.post('/api/v1/getChatUsers', (req, res) => {
-	const { chatId } = req.body;
-
-	if (!chatId) {
-		return res.sendStatus(400);
-	}
-
-	const chat = objects.get(chatId);
-
-	if (!chat.hasUser(req.user.uuid)) {
-		return res.sendStatus(401);
-	}
-
-	res.status(200).send(chat.users);
+	res.status(200).send(encrypt(chat.users, userIdToKey.get(req.user)));
 });
 
 app.get('/healthcheck', (req, res) => {

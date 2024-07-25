@@ -4,6 +4,8 @@
 
 The Carbon API provides endpoints for user authentication, chat management, and messaging.
 
+**Please Note:** _All_ parameters and responses are encrypted with RSA. Responses need to be decrypted with the private key pair of the public key used for registration. Parameters need to be encrypted with the public key used for authentication.
+
 Base Port: 3000
 
 ## Authentication

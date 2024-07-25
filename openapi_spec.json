@@ -3,7 +3,7 @@
     "info": {
         "title": "Carbon API",
         "version": "1.0.0",
-        "description": "The Carbon API provides endpoints for user authentication, chat management, and messaging.",
+        "description": "The Carbon API provides endpoints for user authentication, chat management, and messaging. Please Note: All parameters and responses are encrypted with RSA. Responses need to be decrypted with the private key pair of the public key used for registration. Parameters need to be encrypted with the public key used for authentication.",
         "contact": {
             "name": "Contributors to Carbon on GitHub",
             "url": "https://github.com/carbon-chat/carbon"
