@@ -15,7 +15,7 @@
 
 ## Our Mission
 
-We aim to provide **🔒 secure**, **🎯 robust** messaging for everyone.
+We aim to provide **🔒 secure, end-to-end encrypted**, **🎯 robust** messaging for everyone.
 
 ## How it Works
 
