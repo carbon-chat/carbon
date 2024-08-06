@@ -89,7 +89,9 @@ function saveData() {
 
 	const compressedData = pako.deflate(serializedData);
 
-	fs.writeFileSync(savePath, compressedData);
+	const encryptedData = encrypt(compressedData, env.PUBLIC_KEY);
+
+	fs.writeFileSync(savePath, encryptedData);
 }
 
 function setup() {
@@ -100,7 +102,17 @@ function setup() {
 	const compressedDataFromFile = fs.readFileSync(savePath);
 	const decompressedData = pako.inflate(compressedDataFromFile, { to: 'string' });
 
-	const parsedData = JSON.parse(decompressedData);
+	if (!decompressedData) {
+		return;
+	}
+
+	if (decompressedData === '') {
+		return;
+	}
+
+	const decryptedData = decrypt(decompressedData, env.PRIVATE_KEY);
+
+	const parsedData = JSON.parse(decryptedData);
 	objects = new Map(JSON.parse(parsedData.objects));
 	usernameToId = new Map(JSON.parse(parsedData.usernameToId));
 	userIdToKey = new Map(JSON.parse(parsedData.userIdToKey));
