@@ -120,7 +120,7 @@ function setup() {
 }
 
 app.use((req, res, next) => {
-	if ((req.method === 'POST' && (req.path === '/api/v1/auth' || req.path === '/api/v1/register')) || (req.method === 'GET' && req.path === '/healthcheck')) {
+	if ((req.method === 'POST' && (req.path === '/api/v1/auth' || req.path === '/api/v1/register')) || (req.method === 'GET' && (req.path === '/healthcheck' || req.path === '/api/v1/getKey'))) {
 		return next();
 	}
 
@@ -155,7 +155,7 @@ app.use((req, res, next) => {
 	next();
 });
 
-app.post('/api/getKey', (req, res) => {
+app.get('/api/v1/getKey', (req, res) => {
 	res.status(200).send({ publicKey: env.PUBLIC_KEY });
 });
 

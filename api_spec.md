@@ -193,3 +193,13 @@ Verifies server health.
 - **Method:** `GET`
 - **Success Response:**
   - **Code:** `200 OK`
+
+### Get Key
+
+Retrieves the public key used for encryption.
+
+- **URL:** `/api/v1/getKey`
+- **Method:** `GET`
+- **Success Response:**
+  - **Code:** `200 OK`
+  - **Content:** Public key
