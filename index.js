@@ -129,7 +129,9 @@ app.use((req, res, next) => {
 		return res.sendStatus(401);
 	}
 
-	const authToken = authHeader.slice(7);
+	let authToken = authHeader.slice(7);
+
+	authToken = decrypt(authToken, env.PRIVATE_KEY);
 
 	const tokens = [...objects.values()].filter(t => t.code === authToken);
 
@@ -144,6 +146,12 @@ app.use((req, res, next) => {
 	}
 
 	req.user = token.userId;
+
+	next();
+});
+
+app.use((req, res, next) => {
+	req.body = decrypt(req.body, env.PRIVATE_KEY);
 
 	next();
 });

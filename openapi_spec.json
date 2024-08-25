@@ -3,7 +3,7 @@
     "info": {
         "title": "Carbon API",
         "version": "1.0.0",
-        "description": "The Carbon API provides endpoints for user authentication, chat management, and messaging. Please Note: All parameters and responses are encrypted with RSA. Responses need to be decrypted with the private key pair of the public key used for registration. Parameters need to be encrypted with the public key used for authentication.",
+        "description": "The Carbon API provides endpoints for user authentication, chat management, and messaging. Please Note: All parameters and responses are encrypted with RSA. Responses need to be decrypted with the private key pair of the public key used for registration. Parameters need to be encrypted with the public key used for authentication. Authentication keys (excluding the 'Bearer' prefix) need to be encrypted like parameters.",
         "contact": {
             "name": "Contributors to Carbon on GitHub",
             "url": "https://github.com/carbon-chat/carbon"
@@ -30,7 +30,7 @@
         },
         {
             "name": "Get Key",
-            "description": "Get the server public key"
+            "description": "Get the server's public key"
         }
     ],
     "paths": {
@@ -54,11 +54,15 @@
                                     },
                                     "password": {
                                         "type": "string"
+                                    },
+                                    "publicKey": {
+                                        "type": "string"
                                     }
                                 },
                                 "required": [
                                     "username",
-                                    "password"
+                                    "password",
+                                    "publicKey"
                                 ]
                             }
                         }
