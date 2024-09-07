@@ -17,6 +17,8 @@ app.disable('x-powered-by');
 app.disable('etag');
 app.use(express.json());
 
+app.use(express.static('public'));
+
 const limiter = expressRateLimit({
 	windowMs: 60 * 1000,
 	max: 100

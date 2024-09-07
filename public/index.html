@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Carbon</title>
+
+        <style>
+            :root {
+                --purple: rgb(123, 31, 162);
+                --violet: rgb(103, 58, 183);
+                --pink: rgb(244, 143, 177);
+            }
+
+            @keyframes background-pan {
+                from {
+                    background-position: 0% center;
+                }
+
+                to {
+                    background-position: -200% center;
+                }
+            }
+
+            body {
+                background-color: rgb(10, 10, 10);
+                display: grid;
+                height: 100vh;
+                margin: 0px;
+                overflow: hidden;
+                place-items: center;
+            }
+
+            h1 {
+                color: white;
+                font-family: "Rubik", sans-serif;
+                font-size: clamp(2em, 2vw, 4em);
+                font-weight: 400;
+                margin: 0px;
+                padding: 20px;
+                text-align: center;
+            }
+
+            h1>.magic {
+                display: inline-block;
+                position: relative;
+            }
+
+            h1>.magic>.magic-text {
+                animation: background-pan 3s linear infinite;
+                background: linear-gradient(to right,
+                        var(--purple),
+                        var(--violet),
+                        var(--pink),
+                        var(--purple));
+                background-size: 200%;
+                -webkit-background-clip: text;
+                background-clip: text;
+                -webkit-text-fill-color: transparent;
+                white-space: nowrap;
+            }
+        </style>
+    </head>
+
+    <body>
+        <h1>
+            Carbon, a free and
+            <span class="magic">
+                <span class="magic-text">end-to-end encrypted</span>
+            </span>
+            messaging server.
+        </h1>
+    </body>
+
+</html>
