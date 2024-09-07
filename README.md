@@ -19,7 +19,7 @@ We aim to provide **🔒 secure, end-to-end encrypted**, **🎯 robust** messagi
 
 ## How it Works
 
-Carbon Clients connect to an instance of a Carbon Server. The client (probably) uses the [Carbon.js](https://github.com/carbon-chat/carbon.js) library to communicate with the server to send and receive messages, voice and video calls, and more.
+Carbon Clients connect to an instance of a Carbon Server. The client communicates with the server using the API specification to send and receive messages, voice and video calls, and more.
 
 ## Contributors
 
