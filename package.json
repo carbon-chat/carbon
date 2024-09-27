@@ -1,6 +1,6 @@
 {
 	"name": "carbon",
-	"version": "2.2",
+	"version": "2.3",
 	"description": "Carbon is a open-source, free messaging server build apon the Carbon Specification",
 	"main": "index.js",
 	"scripts": {
