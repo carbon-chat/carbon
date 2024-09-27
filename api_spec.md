@@ -4,8 +4,6 @@
 
 The Carbon API provides endpoints for user authentication, chat management, and messaging.
 
-**Please Note:** _All_ parameters and responses are encrypted with RSA. Responses need to be decrypted with the private key pair of the public key used for registration. Parameters need to be encrypted with the public key used for authentication. Authentication keys (excluding the 'Bearer' prefix) need to be encrypted like parameters.
-
 Base Port: 3000
 
 ## Authentication
@@ -31,7 +29,9 @@ Registers a new user.
 
     ```json
     {
-      "userId": "string"
+      "userId": "string",
+      "code": "string",
+      "expiresAt": "number"
     }
     ```
 
@@ -60,7 +60,9 @@ Authenticates an existing user.
 
     ```json
     {
-      "userId": "string"
+      "userId": "string",
+      "code": "string",
+      "expiresAt": "number"
     }
     ```
 
@@ -105,10 +107,16 @@ Creates a new chat room.
 
 - **Success Response:**
   - **Code:** `200 OK`
-  - **Content:** `chatId`
+  - **Content:**
+
+    ```json
+    {
+      "chatId": "string",
+    }
+    ```
+
 - **Error Responses:**
   - **Code:** `400 Bad Request` if name is missing.
-  - **Code:** `409 Conflict` if a chat room with the same name already exists.
 
 ### Create Chat Message
 
@@ -193,13 +201,3 @@ Verifies server health.
 - **Method:** `GET`
 - **Success Response:**
   - **Code:** `200 OK`
-
-### Get Key
-
-Retrieves the public key used for encryption.
-
-- **URL:** `/api/v1/getKey`
-- **Method:** `GET`
-- **Success Response:**
-  - **Code:** `200 OK`
-  - **Content:** Public key

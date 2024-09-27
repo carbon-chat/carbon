@@ -3,15 +3,19 @@ const bcrypt = require('bcrypt');
 const fs = require('fs');
 const expressRateLimit = require('express-rate-limit');
 const pako = require('pako');
-const crypto = require('crypto');
-const env = require('dotenv').config();
+const crypto = require('node:crypto');
+const env = require('dotenv').config().parsed;
 
 const CarbonObject = require('./carbonObject');
+const Logger = require('./carbolog');
 
 const savePath = 'save.gz';
+const logPath = './logs';
 
 const app = express();
 const port = 3000;
+
+const logger = new Logger(logPath);
 
 app.disable('x-powered-by');
 app.disable('etag');
@@ -29,9 +33,12 @@ let objects = new Map();
 
 let usernameToId = new Map();
 
-let userIdToKey = new Map();
-
 let authCodes = [];
+
+const publicKey = env.PUBLIC_KEY;
+const privateKey = env.PRIVATE_KEY;
+
+const doEncryption = process.argv.includes('--encrypt');
 
 function generateRandom(length) {
 	var result = '';
@@ -54,46 +61,46 @@ function generateUnique(length, arr) {
 function createTimestamp() {
 	const now = new Date();
 	const millis = now.getTime();
-	const date = now.toLocaleString('en-US', {
-		hour: 'numeric',
-		minute: 'numeric',
-		second: 'numeric',
-		day: '2-digit',
-		month: '2-digit',
-		year: 'numeric'
-	});
 
-	return {
-		millis,
-		date
-	};
+	return millis;
 }
 
-function encrypt(data, publicKey) {
+function encrypt(data) {
 	const buffer = Buffer.from(data, 'utf8');
+	// Check if the data size is appropriate for the key size
+	const keySizeInBytes = 256; // 2048-bit key size (common size)
+	if (buffer.length > keySizeInBytes - 11) { // 11 is for padding
+		throw new Error('Data is too large to encrypt with the provided public key');
+	}
 	const encrypted = crypto.publicEncrypt(publicKey, buffer);
 	return encrypted.toString('base64');
 }
 
-function decrypt(encrypted, privateKey) {
+function decrypt(encrypted) {
 	const buffer = Buffer.from(encrypted, 'base64');
+	// Check if the data size is appropriate for the key size
+	const keySizeInBytes = 256; // 2048-bit key size (common size)
+	if (buffer.length > keySizeInBytes - 11) { // 11 is for padding
+		throw new Error('Data is too large to decrypt with the provided private key');
+	}
 	const decrypted = crypto.privateDecrypt(privateKey, buffer);
 	return decrypted.toString('utf8');
 }
 
 function saveData() {
-	const serializedData = JSON.stringify({
+	let data = JSON.stringify({
 		objects: JSON.stringify([...objects]),
 		usernameToId: JSON.stringify([...usernameToId]),
-		userIdToKey: JSON.stringify([...userIdToKey]),
 		authCodes: authCodes
 	});
 
-	const compressedData = pako.deflate(serializedData);
+	data = pako.deflate(data);
 
-	const encryptedData = encrypt(compressedData, env.PUBLIC_KEY);
+	if (doEncryption) {
+		data = encrypt(data);
+	}
 
-	fs.writeFileSync(savePath, encryptedData);
+	fs.writeFileSync(savePath, data);
 }
 
 function setup() {
@@ -101,28 +108,25 @@ function setup() {
 		return;
 	}
 
-	const compressedDataFromFile = fs.readFileSync(savePath);
-	const decompressedData = pako.inflate(compressedDataFromFile, { to: 'string' });
+	let data = fs.readFileSync(savePath);
+	data = pako.inflate(data, { to: 'string' });
 
-	if (!decompressedData) {
+	if (!data || data === '') {
 		return;
 	}
 
-	if (decompressedData === '') {
-		return;
+	if (doEncryption) {
+		data = decrypt(data);
 	}
 
-	const decryptedData = decrypt(decompressedData, env.PRIVATE_KEY);
-
-	const parsedData = JSON.parse(decryptedData);
+	const parsedData = JSON.parse(data);
 	objects = new Map(JSON.parse(parsedData.objects));
 	usernameToId = new Map(JSON.parse(parsedData.usernameToId));
-	userIdToKey = new Map(JSON.parse(parsedData.userIdToKey));
 	authCodes = parsedData.authCodes;
 }
 
 app.use((req, res, next) => {
-	if ((req.method === 'POST' && (req.path === '/api/v1/auth' || req.path === '/api/v1/register')) || (req.method === 'GET' && (req.path === '/healthcheck' || req.path === '/api/v1/getKey'))) {
+	if ((req.method === 'POST' && (req.path === '/api/v1/auth' || req.path === '/api/v1/register')) || (req.method === 'GET' && (req.path === '/healthcheck'))) {
 		return next();
 	}
 
@@ -132,8 +136,6 @@ app.use((req, res, next) => {
 	}
 
 	let authToken = authHeader.slice(7);
-
-	authToken = decrypt(authToken, env.PRIVATE_KEY);
 
 	const tokens = [...objects.values()].filter(t => t.code === authToken);
 
@@ -153,33 +155,25 @@ app.use((req, res, next) => {
 });
 
 app.use((req, res, next) => {
-	req.body = decrypt(req.body, env.PRIVATE_KEY);
-
-	next();
-});
-
-app.use((req, res, next) => {
 	res.on('finish', () => {
 		saveData();
 	});
 	next();
 });
 
-app.get('/api/v1/getKey', (req, res) => {
-	res.status(200).send({ publicKey: env.PUBLIC_KEY });
+app.use((req, res, next) => {
+	res.on('finish', () => {
+		logger.verbose(`${req.method} ${req.path} recieved from ${req.user || 'unknown user'} with the IP ${req.ip}. Response code ${res.statusCode}.`);
+	});
+	next();
 });
 
 app.post('/api/v1/register', (req, res) => {
-	let { username, password, publicKey } = req.body;
+	let { username, password } = req.body;
 
 	if (!username || !password) {
 		return res.sendStatus(400);
 	}
-
-	username = decrypt(username, env.PRIVATE_KEY);
-	password = decrypt(password, env.PRIVATE_KEY);
-
-	publicKey = decrypt(publicKey, env.PRIVATE_KEY);
 
 	if (username.length < 3 || username.length > 32) {
 		return res.sendStatus(400);
@@ -199,14 +193,13 @@ app.post('/api/v1/register', (req, res) => {
 
 	const user = new CarbonObject("carbon:user", {
 		username,
+		chats: [],
 		passwordHash: hashedPassword
 	});
 
 	objects.set(userId, user);
 
 	usernameToId.set(username, userId);
-
-	userIdToKey.set(userId, publicKey);
 
 	const tokenId = generateUnique(100, [...objects.keys()]);
 
@@ -231,9 +224,6 @@ app.post('/api/v1/auth', (req, res) => {
 	if (!username || !password) {
 		return res.sendStatus(400);
 	}
-
-	username = decrypt(username, env.PRIVATE_KEY);
-	password = decrypt(password, env.PRIVATE_KEY);
 
 	if (!usernameToId.has(username)) {
 		return res.sendStatus(401);
@@ -271,8 +261,6 @@ app.post('/api/v1/updatePassword', (req, res) => {
 		return res.sendStatus(400);
 	}
 
-	password = decrypt(password, env.PRIVATE_KEY);
-
 	const user = objects.get(req.user);
 
 	user.password = bcrypt.hashSync(password, 10);
@@ -287,12 +275,6 @@ app.post('/api/v1/createChat', (req, res) => {
 		return res.sendStatus(400);
 	}
 
-	name = decrypt(name, env.PRIVATE_KEY);
-
-	if (objects.entries().find(c => c.name === name)) {
-		return res.sendStatus(409);
-	}
-
 	const chatId = generateUnique(100, [...objects.keys()]);
 
 	const chat = new CarbonObject("carbon:chat", {
@@ -304,6 +286,14 @@ app.post('/api/v1/createChat', (req, res) => {
 
 	objects.set(chatId, chat);
 
+	let oldUser = objects.get(req.user);
+
+	oldUser.chats.push(chatId);
+
+	objects.delete(req.user);
+
+	objects.set(req.user, oldUser);
+
 	res.status(200).send({ chatId });
 });
 
@@ -313,9 +303,6 @@ app.post('/api/v1/createChatMessage', (req, res) => {
 	if (!chatId || !content) {
 		return res.sendStatus(400);
 	}
-
-	chatId = decrypt(chatId, env.PRIVATE_KEY);
-	content = decrypt(content, env.PRIVATE_KEY);
 
 	const chat = objects.get(chatId);
 
@@ -343,21 +330,19 @@ app.post('/api/v1/getChatMessages', (req, res) => {
 		return res.sendStatus(400);
 	}
 
-	chatId = decrypt(chatId, env.PRIVATE_KEY);
-
 	const chat = objects.get(chatId);
 
 	if (!chat.users.includes(req.user)) {
 		return res.sendStatus(401);
 	}
 
-	res.status(200).send(encrypt(chat.messages, userIdToKey.get(req.user)));
+	res.status(200).send(chat.messages);
 });
 
-app.post('/api/v1/getInvlovedChats', (req, res) => {
-	const invlovedChatIds = [...objects.keys()].filter(id => objects.get(id).users.includes(req.user));
+app.post('/api/v1/getInvolvedChats', (req, res) => {
+	const invlovedChatIds = objects.get(req.user).chats;
 
-	res.status(200).send(encrypt(invlovedChatIds, userIdToKey.get(req.user)));
+	res.status(200).send(invlovedChatIds);
 });
 
 app.post('/api/v1/getChatUsers', (req, res) => {
@@ -373,7 +358,7 @@ app.post('/api/v1/getChatUsers', (req, res) => {
 		return res.sendStatus(401);
 	}
 
-	res.status(200).send(encrypt(chat.users, userIdToKey.get(req.user)));
+	res.status(200).send(chat.users);
 });
 
 app.get('/healthcheck', (req, res) => {
@@ -381,7 +366,8 @@ app.get('/healthcheck', (req, res) => {
 });
 
 app.listen(port, () => {
-	console.info(`Carbon listening on port ${port}`);
+	console.log(`Carbon listening on port ${port}`);
+	logger.info(`Carbon listening on port ${port}`);
 
 	setup();
 });

@@ -61,6 +61,96 @@
                 -webkit-text-fill-color: transparent;
                 white-space: nowrap;
             }
+
+            div,
+            div[center] {
+                padding: 20px;
+                max-width: 600px;
+                margin: auto;
+                border-radius: 10px;
+                box-shadow: 0 4px 6px rgba(0, 0, 0, .1)
+            }
+
+            button,
+            h1 {
+                color: rgb(72, 72, 72)
+            }
+
+            button,
+            button[shiny]:active {
+                box-shadow: 0 0 0 0 transparent
+            }
+
+            div[center] {
+                width: 100%;
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+            }
+
+            button {
+                background-color: transparent;
+                padding: 20px 30px;
+                border: 1px solid #007bff;
+                border-radius: 5px;
+                transition: .2s ease-in;
+                position: relative;
+                cursor: pointer;
+                font-size: 50px;
+            }
+
+            button:hover {
+                background-color: #007bff;
+                color: #fff;
+                box-shadow: 0 0 30px 0 rgba(0, 199, 236, .5);
+                transition: .2s ease-out
+            }
+
+            button[shiny]:hover:before {
+                animation: .5s linear shine
+            }
+
+            button[shiny]:active {
+                transition: box-shadow .2s ease-in
+            }
+
+            button[shiny]:before {
+                content: '';
+                display: block;
+                width: 0;
+                height: 86%;
+                position: absolute;
+                top: 7%;
+                left: 0;
+                opacity: 0;
+                background: #fff;
+                box-shadow: 0 0 15px 3px #fff;
+                transform: skewX(-20deg)
+            }
+
+            @keyframes shine {
+                from {
+                    opacity: 0;
+                    left: 0
+                }
+
+                50% {
+                    opacity: 1
+                }
+
+                to {
+                    opacity: 0;
+                    left: 100%
+                }
+            }
+
+            @media (max-width:600px) {
+                .center {
+                    width: 100%;
+                    padding: 20px
+                }
+            }
         </style>
     </head>
 
@@ -68,10 +158,11 @@
         <h1>
             Carbon, a free and
             <span class="magic">
-                <span class="magic-text">end-to-end encrypted</span>
+                <span class="magic-text">secure</span>
             </span>
             messaging server.
         </h1>
+        <button type="button" shiny>Get Started</button>
     </body>
 
 </html>
