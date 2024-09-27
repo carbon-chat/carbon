@@ -1,35 +1,35 @@
 {
-  "name": "carbon",
-  "version": "2.2",
-  "description": "Carbon is a open-source, free messaging server.",
-  "main": "index.js",
-  "scripts": {
-    "test": "node .",
-    "lint": "eslint .",
-    "start": "node ."
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/carbon-chat/carbon.git"
-  },
-  "author": "Contributors to Carbon on GitHub",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/carbon-chat/carbon/issues"
-  },
-  "homepage": "https://github.com/carbon-chat/carbon#readme",
-  "dependencies": {
-    "bcrypt": "^5.1.1",
-    "dotenv": "^16.4.5",
-    "express": "^4.21.0",
-    "express-rate-limit": "^7.4.0",
-    "express-sslify": "^1.2.0",
-    "fs": "^0.0.2",
-    "pako": "^2.1.0"
-  },
-  "devDependencies": {
-    "@eslint/js": "^9.9.0",
-    "eslint": "^9.9.1",
-    "globals": "^15.8.0"
-  }
+	"name": "carbon",
+	"version": "2.2",
+	"description": "Carbon is a open-source, free messaging server build apon the Carbon Specification",
+	"main": "index.js",
+	"scripts": {
+		"test": "node .",
+		"lint": "eslint .",
+		"start": "node ."
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/carbon-chat/carbon.git"
+	},
+	"author": "Contributors to Carbon on GitHub",
+	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/carbon-chat/carbon/issues"
+	},
+	"homepage": "https://github.com/carbon-chat/carbon#readme",
+	"dependencies": {
+		"bcrypt": "^5.1.1",
+		"dotenv": "^16.4.5",
+		"express": "^5.0.0",
+		"express-rate-limit": "^7.4.0",
+		"express-sslify": "^1.2.0",
+		"fs": "^0.0.1-security",
+		"pako": "^2.1.0"
+	},
+	"devDependencies": {
+		"@eslint/js": "^9.11.0",
+		"eslint": "^9.11.1",
+		"globals": "^15.8.0"
+	}
 }
