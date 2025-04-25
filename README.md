@@ -13,6 +13,8 @@
     Carbon is an 📖 open-source, 🪙 free messaging server.
 </div>
 
+This project is unmaintained except for security issues and package updates.
+
 ## Our Mission
 
 We aim to provide **🔒 secure**, **🎯 robust** messaging for everyone.
