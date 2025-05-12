@@ -19,7 +19,7 @@
 	},
 	"homepage": "https://github.com/carbon-chat/carbon#readme",
 	"dependencies": {
-		"bcrypt": "^5.1.1",
+		"bcrypt": "^6.0.0",
 		"dotenv": "^16.5.0",
 		"express": "^5.1.0",
 		"express-rate-limit": "^7.5.0",
