@@ -31,4 +31,4 @@ Carbon Clients connect to an instance of a Carbon Server. The client communicate
 
 ## License
 
-Carbon Project © 2024, contributors to the Carbon Project - Released under the [MIT License](LICENSE.md).
+Carbon Project © 2025, contributors to the Carbon Project - Released under the [MIT License](LICENSE.md).
